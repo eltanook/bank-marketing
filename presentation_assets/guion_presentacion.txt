@@ -1,0 +1,48 @@
+GUIÓN DE PRESENTACIÓN: EQUIDAD EN IA - CASO BANK MARKETING
+
+Tiempo estimado: 15-20 minutos.
+Contexto: Avance preliminar (Ejercicios 1, 2 y 3).
+
+---
+
+1. INTRODUCCIÓN Y OBJETIVOS (2 minutos)
+* Slide 1: Título y Contexto.
+  - Discurso: Buen día. Hoy presentamos el avance de nuestro trabajo práctico sobre Equidad en Aprendizaje Automático. Elegimos el dataset de Bank Marketing, extraído del repositorio UCI, el cual contiene datos de una institución bancaria de Portugal.
+* Slide 2: Objetivos del Proyecto.
+  - Puntos clave: Incrementar suscripciones a depósitos a plazo fijo mediante telemarketing eficientemente.
+  - Discurso: El objetivo principal del banco es optimizar sus campañas de telemarketing. Buscan un modelo que prediga si un cliente suscribirá un depósito a plazo fijo para priorizar a quién llamar. Nuestra meta técnica es maximizar el acierto (Accuracy) pero nuestro enfoque ético es garantizar que este proceso no discrimine a grupos específicos.
+
+2. ACCIONES, DATOS Y ANÁLISIS (3 minutos)
+* Slide 3: El Dataset (Datasheet for Datasets).
+  - Discurso: En el Ejercicio 1 realizamos una auditoría del origen de los datos. El dataset representa contactos telefónicos reales entre 2008 y 2010. Es un proceso híbrido: registros administrativos del banco combinados con indicadores macroeconómicos de la Eurozona (como el Euribor).
+* Slide 4: Análisis Exploratorio y Sesgos Históricos.
+  - Discurso: Identificamos fallas potenciales: primero, un fuerte desbalance de clases, donde casi el 90% de los clientes dice que 'no'. Segundo, observamos subrepresentación en niveles educativos primarios y en estados civiles como 'divorciado'. Formulamos la hipótesis de que grupos como estudiantes o jubilados podrían recibir un trato sesgado por su etapa vital, ya que el modelo podría interpretar la edad avanzada como un indicador positivo de estabilidad financiera, excluyendo a los más jóvenes de recibir ofertas beneficiosas.
+
+3. COMPORTAMIENTOS DISCRIMINATORIOS Y ESCENARIOS DE DAÑO (4 minutos)
+* Slide 5: Definición del Escenario de Daño.
+  - Discurso: Definimos nuestro escenario de daño basándonos en el Estado Civil como variable protegida (usándola como proxy de género). Nuestra variable objetivo es la suscripción ('y').
+* Slide 6: Gravedad de los Errores (FP vs. FN).
+  - Puntos clave: Falsos Negativos (FN) son más graves.
+  - Discurso: Aquí aplicamos una visión de negocio: ¿Cuál error es peor? Concluimos que el Falso Negativo (FN) es el más grave. ¿Por qué? Un FN es un cliente que quería el producto pero el banco no lo llamó. Esto implica una pérdida directa de inversión y de un cliente potencial. El Falso Positivo (llamar a alguien que no quiere) solo cuesta una llamada de pocos minutos, mientras que ganar un suscriptor tiene un beneficio mucho mayor. El daño aquí es la denegación injusta de acceso a servicios financieros.
+
+4. EL MODELO Y MÉTRICAS DE DESEMPEÑO (3 minutos)
+* Slide 7: Implementación del Modelo (Random Forest).
+  - Discurso: En el Ejercicio 2 entrenamos un Random Forest. Obtuvimos un Accuracy del 91%, lo cual suena excelente. Sin embargo, al mirar el Recall (sensibilidad), vemos que solo capturamos al ~53% de los que realmente se suscribirían.
+* Slide 8: Interpretación de Resultados.
+  - Discurso: Este 'buen' desempeño global oculta la ineficiencia tras el desbalance. El modelo es 'perezoso': se volvió muy bueno prediciendo los 'no', pero le cuesta encontrar los 'sí', que es precisamente lo que le interesa al banco.
+
+5. AUDITORÍA DE EQUIDAD (2 minutos)
+* Slide 9: Criterios de Fairness (Ejercicio 3).
+  - Discurso: Finalmente, auditamos la equidad comparando a los Casados contra Otros. Evaluamos cuatro criterios: Paridad Estadística, Igualdad de Oportunidades, Igualdad de Probabilidades y Paridad Predictiva.
+* Slide 10: Elección del Criterio y Resultados.
+  - Discurso: Elegimos Equal Opportunity (Igualdad de Oportunidades) como nuestro criterio clave. Nos importa que el Recall sea parejo: si un soltero y un casado tienen perfil para ahorrar, el modelo debe detectarlos con la misma tasa de acierto. En nuestras pruebas, la diferencia fue menor al 0.1 (umbral definido), por lo que el modelo es técnicamente 'fair' bajo esta definición inicial, aunque seguiremos profundizando en la mitigación en la siguiente fase.
+
+6. CONCLUSIÓN (1 minuto)
+* Slide 11: Reflexión Final.
+  - Discurso: Para cerrar, confirmamos que una buena métrica de acierto no garantiza un modelo útil ni justo. La baja tasa de Recall en los suscritos es nuestra prioridad técnica, y el monitoreo de la equidad en el acceso a la oferta es nuestro compromiso ético. En la segunda parte del TP, aplicaremos técnicas de mitigación para reducir estas brechas. Muchas gracias.
+
+---
+RECOMENDACIONES PARA DIAPOSITIVAS:
+1. Gráficos: Comparación de Accuracy/Recall por grupo (Ejs. 2 y 3).
+2. Matriz de Confusión: Visualizar los Falsos Negativos (Ej. 2).
+3. Tabla de Equidad: Mostrar la disparidad calculada vs el umbral del 0.1.
