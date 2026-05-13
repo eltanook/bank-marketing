@@ -1,175 +1,69 @@
 # TP Equidad en Aprendizaje Automático
 
-## Dataset
-**Bank Marketing** (UCI) — 41.188 registros de campañas de telemarketing de un banco portugués.  
-**Objetivo**: predecir si un cliente suscribirá un depósito a plazo fijo (`y`: yes/no).
+## Contexto y Dataset
+**Dataset**: Bank Marketing (UCI) — 41.188 registros de campañas de telemarketing de un banco portugués.  
+**Objetivo de Negocio**: Incrementar la tasa de suscripción a depósitos a plazo fijo, prediciendo si un cliente suscribirá o no (`y`: yes/no).
 
-## Variables protegidas y proxies
+## Variables Protegidas y Proxies Analizados
+La consigna establece que las variables protegidas oficiales para este dominio bancario son el **estado civil** y la **edad**, sumado a un enfoque particular en el **género**. Debido a la composición del dataset, el análisis se estructuró de la siguiente forma:
 
-El dataset **no contiene variable de género directa**. Para cumplir con todos los ejercicios se analizan las siguientes variables:
-
-| Variable / Proxy | Nombre | Justificación |
+| Variable / Proxy | Nombre en Dataset | Justificación y Uso |
 |-------|----------|---------------|
-| **Género** | `job` | Trabajos como `housemaid` y `admin.` fueron históricamente femeninos |
-| **Estado civil** | `marital` | Variable protegida oficial asignada por la consigna original para el dataset Bank Marketing |
+| **Género** (Proxy) | `job` | Dado que el dataset no incluye género directo, se utilizó la ocupación como proxy, agrupando trabajos históricamente femeninos (`housemaid`, `admin.`) versus el resto. |
+| **Estado civil / Edad** | `marital` | Variable protegida oficial asignada por la consigna. Se utiliza porque el estado civil correlaciona fuertemente con la etapa de la vida (solteros=jóvenes, casados=mediana edad, divorciados=mayores). |
 
-> **Nota**: la variable `duration` fue excluida de todos los modelos por representar *data leakage* (solo se conoce después de la llamada).
-
----
-
-## Resumen de ejercicios
-
-### Ejercicio 1 — Análisis exploratorio y marco conceptual
-**Consigna**: Explorar el dataset, identificar variables protegidas, proxies de género y posibles sesgos.
-
-**Resolución**: Se identificaron las variables de `job` (proxy de género para el Ej3) y `marital` (estado civil oficial), se documentaron desbalances de clases (~90% "no") y sub-representación en ciertos grupos demográficos. Se justificó la exclusión de `duration`.
+> **Nota Crítica sobre Data Leakage**: La variable `duration` (duración de la llamada) fue **excluida de todos los modelos predictivos**. Como advierten los autores del dataset, esta variable solo se conoce *después* de que la llamada ha finalizado y determina directamente el éxito de la misma. Incluirla crearía un modelo sesgado e irrealizable en un entorno de producción.
 
 ---
 
-### Ejercicio 2 — Modelo base y evaluación
-**Consigna**: Entrenar un modelo clásico, evaluar con métricas estándar y determinar qué tipo de error es peor.
+## Resumen de la Implementación por Ejercicio
 
-**Modelo**: Random Forest (100 estimadores, random_state=42), split estratificado 80/20.
+### Ejercicio 1 — Análisis Exploratorio y Marco Conceptual
+Se realizó una investigación profunda sobre el origen y propósito del dataset siguiendo la metodología *Datasheets for Datasets*.  
+* **Identificación de Sesgos**: Se detectó un fuerte desbalance de clases (casi 90% de los contactos resultan en un "no"). También se identificó sub-representación en grupos demográficos clave, como solteros y divorciados frente a casados, y una distribución muy desigual en niveles educativos.
+* **Depuración Conceptual**: Aunque durante la exploración inicial se barajaron variables de tipo operativo (como `contact` - celular vs. teléfono fijo) o la edad numérica, para el desarrollo formal del TP se consolidó el uso de `job` (como proxy de género) y `marital` (como proxy de edad y estado civil). Esto permitió centrar el análisis de equidad exclusivamente en atributos demográficos éticamente relevantes y cumplir orgánicamente con la consigna.
 
-**Conclusión sobre errores**: El **Falso Negativo (FN) es el error más crítico** porque representa un suscriptor potencial que el modelo ignora, causando pérdida directa de oportunidad comercial. El costo de un FP (una llamada extra) es marginal comparado con perder un depósito.
+### Ejercicio 2 — Modelo Base y Evaluación del Error
+Se entrenó un modelo clásico de Machine Learning como punto de partida (baseline).
+* **Modelo Elegido**: Random Forest Classifier (100 estimadores), validado con un split estratificado 80/20 para mitigar el desbalance.
+* **Evaluación de Métricas**: Si bien el modelo arrojó un *Accuracy* engañosamente alto (~90%), el *Recall* para la clase positiva resultó bajo, revelando dificultades para detectar a los verdaderos suscriptores debido a la escasez de ejemplos positivos.
+* **Determinación del Error Crítico**: Desde la perspectiva comercial del Banco, se determinó que **el Falso Negativo (FN) es el error más perjudicial**. Un FN implica no contactar a alguien que sí se hubiera suscrito (pérdida directa de cliente y depósito), mientras que un Falso Positivo (FP) solo representa el costo operativo marginal de realizar una llamada telefónica adicional.
 
----
+### Ejercicio 3 — Auditoría de Equidad (Fairness)
+Se auditó cómo el modelo base trata a los distintos grupos demográficos utilizando 4 criterios formales (Statistical Parity, Equal Opportunity, Equalized Odds, Predictive Parity), con un umbral de tolerancia de disparidad del 10% (0.1).
+* **Resultados Iniciales**: El modelo original cumplió matemáticamente con todos los criterios de fairness bajo el umbral estipulado para ambos proxies, aunque evidenciando brechas menores.
+* **Criterio Seleccionado (El más relevante)**: **Equal Opportunity**. Al priorizar la minimización de Falsos Negativos (conclusión del Ej2), es imperativo asegurar que el modelo detecte a los verdaderos suscriptores potenciales con la misma eficacia (es decir, el mismo *True Positive Rate* o Recall) en todos los grupos. Evitamos así que el modelo sea bueno detectando hombres y malo detectando mujeres, o eficaz con casados y deficiente con divorciados.
 
-### Ejercicio 3 — Análisis de Fairness
-**Consigna**: Describir criterios de fairness en contexto, evaluar cuantitativamente si el modelo es fair (umbral de disparidad = 0.1), y elegir el criterio más relevante.
+### Ejercicio 4 — Mitigación de Sesgos
+Para mejorar proactivamente la equidad e intentar cerrar las brechas observadas en el TPR, se aplicaron y evaluaron dos estrategias de mitigación:
+1. **Reweighting (Pre-procesamiento)**: Se reasignaron pesos a las instancias de entrenamiento de forma inversamente proporcional a la frecuencia de su combinación grupo-clase. Esto obliga al algoritmo a "prestar más atención" a grupos minoritarios (ej. mujeres suscriptoras).
+2. **Ajuste de Umbrales por Grupo (Post-procesamiento)**: En lugar de usar un umbral de decisión fijo del 50%, se recalibraron los umbrales de probabilidad de forma independiente para cada grupo protegido, con el objetivo matemático explícito de igualar sus tasas de Verdaderos Positivos.
 
-**Criterio elegido**: **Equal Opportunity** — coherente con que el FN es el error más costoso (Ej2). Queremos que el modelo detecte suscriptores potenciales con la misma eficacia sin importar el grupo.
-
----
-
-### Ejercicio 4 — Mitigación de sesgos
-**Consigna**: Aplicar al menos 2 técnicas de mitigación, evaluar performance y fairness post-mitigación.
-
-**Técnicas aplicadas**:
-1. **Reweighting** (pre-processing): pesos inversamente proporcionales a frecuencia de (grupo, clase)
-2. **Ajuste de umbral por grupo** (post-processing): umbrales distintos por grupo para igualar TPR
-
----
-
-### Ejercicio 5 — Comparación y reflexión
-**Consigna**: Comparar modelo original vs. ajustado en performance y fairness, discutir trade-offs, reflexionar sobre impacto real.
-
-**Conclusión general**: Las técnicas de mitigación logran reducir la disparidad de TPR entre grupos. La pequeña pérdida en performance se justifica porque: (1) un FN es más costoso que un FP, (2) mejor recall captura más suscriptores, (3) el costo marginal de llamadas extra es bajo.
+### Ejercicio 5 — Comparación de Resultados y Reflexión
+Se confrontaron las métricas de rendimiento y equidad del modelo base contra los modelos mitigados.
+* **Trade-off Equidad vs. Performance**: Ambas técnicas de mitigación lograron disminuir aún más la disparidad de *Equal Opportunity*. Sin embargo, como es habitual, esto se logró a costa de una ligera reducción en el *Accuracy* y *Precision* global.
+* **Impacto en el Mundo Real**: Se concluyó que esta leve caída en el rendimiento absoluto es no solo justificable, sino deseable. Capturar a clientes de grupos que el modelo original ignoraba (mejorando su Recall específico) incrementa las oportunidades de depósito totales. Además, garantiza que el Banco opere de manera ética, ofrezca un acceso igualitario a sus productos financieros y se proteja ante riesgos legales y daños reputacionales por discriminación algorítmica.
 
 ---
 
----
+## Estructura del Repositorio
 
-# Resultados por proxy
-
-## PROXY 1: `job` como proxy de género
-
-**Grupos**: `hist_femenino` (housemaid, admin.) vs. `hist_masculino_otro` (resto)
-
-### Ej2 — Performance por grupo
-
-| Grupo | Accuracy | Recall(yes) | Precision(yes) | N |
-|-------|----------|-------------|-----------------|------|
-| hist_femenino | 0.8854 | 0.3154 | 0.6483 | 2226 |
-| hist_masculino_otro | 0.9041 | 0.2962 | 0.5831 | 5996 |
-
-**Observación**: Diferencia de Recall pequeña (~0.02). El grupo históricamente femenino tiene recall ligeramente mayor, lo que indica que el modelo no discrimina severamente contra este grupo en detección de suscriptores.
-
-### Ej3 — Fairness (umbral = 0.1)
-
-| Métrica | Disparidad | ¿Fair? |
-|---------|-----------|--------|
-| Statistical Parity | 0.0119 | ✅ |
-| Equal Opportunity (TPR) | 0.0193 | ✅ |
-| Predictive Parity (Precision) | 0.0652 | ✅ |
-| FPR (Equalized Odds) | 0.0017 | ✅ |
-
-**Resultado**: El modelo original **cumple todos los criterios de fairness** con el umbral de 0.1 para el proxy de género.
-
-### Ej4 — Mitigación
-
-- **Reweighting**: Compensa el desbalance entre grupos de `job`, dando más peso a combinaciones sub-representadas (ej: hist_femenino + yes).
-- **Ajuste de umbral**: Encuentra umbrales individuales para cada grupo que acercan los TPR al máximo observado.
-
-### Ej5 — Comparación
-
-- **Reweighting** mejora la equidad (menor disparidad de TPR) con costo leve en Accuracy/Precision global.
-- **Ajuste de umbral** iguala el TPR de forma directa pero puede aumentar FPR para ciertos grupos.
-- En ambos casos, la pérdida de performance es justificable desde la perspectiva del banco (captar más suscriptores potenciales > reducir llamadas innecesarias).
-
----
-
-## VARIABLE 2: `marital` (estado civil oficial)
-
-**Grupos**: `married`, `single`, `divorced`
-
-### Ej2 — Performance por grupo
-
-| Grupo | Accuracy | Recall(yes) | Precision(yes) | N |
-|-------|----------|-------------|-----------------|------|
-| married | 0.9086 | 0.2736 | 0.5991 | 5055 |
-| single | 0.8724 | 0.3483 | 0.6042 | 2296 |
-| divorced | 0.9139 | 0.2941 | 0.6250 | 871 |
-
-**Observación**: `single` tiene el mayor Recall, `married` el menor. La diferencia máxima de TPR (~0.075) sugiere un posible sesgo por estado civil pero se mantiene bajo el umbral de 0.1.
-
-### Ej3 — Fairness (umbral = 0.1)
-
-| Métrica | Máx. disparidad | Par con máx. disp. | ¿Fair? |
-|---------|-----------------|---------------------|--------|
-| Statistical Parity | 0.0377 | married vs single | ✅ |
-| Equal Opportunity (TPR) | 0.0747 | married vs single | ✅ |
-| Predictive Parity (Precision) | 0.0259 | married vs divorced | ✅ |
-| FPR (Equalized Odds) | 0.0196 | single vs divorced | ✅ |
-
-**Resultado**: El modelo original también **cumple todos los criterios de fairness** para el estado civil, aunque las disparidades son algo mayores que con el proxy de género.
-
-### Ej4 — Mitigación
-
-- **Reweighting**: Compensa la sobrerrepresentación de `married` (~60%) dando más peso a `single` y especialmente a `divorced` (~11%).
-- **Ajuste de umbral**: Con tres grupos, se optimizan umbrales individuales para acercar los TPR del grupo más rezagado (married) al máximo (single).
-
-### Ej5 — Comparación
-
-- Las técnicas de mitigación logran reducir la disparidad de TPR entre los tres grupos de estado civil.
-- El trade-off equidad/performance se justifica con el mismo argumento que para el proxy de género: captar suscriptores perdidos vale más que evitar llamadas extra.
-
----
-
-## Reflexión final
-
-A lo largo de este TP se demostró un **pipeline completo de auditoría y mitigación de sesgos**:
-
-1. **Conocer el dataset** (Ej1) → identificar variables protegidas, proxies, sesgos en los datos
-2. **Construir el baseline** (Ej2) → evaluar performance y entender el tipo de error más costoso
-3. **Auditar equidad** (Ej3) → medir fairness con criterios formales
-4. **Mitigar** (Ej4) → aplicar técnicas de pre y post-procesamiento
-5. **Comparar y reflexionar** (Ej5) → evaluar trade-offs y entender las implicaciones
-
-### Puntos clave
-
-- **No existe un modelo perfectamente justo Y perfectamente preciso**. La elección del criterio de fairness y del umbral son decisiones de *política*, no solo técnicas.
-- **Los sistemas de ML amplifican sesgos históricos**. Sin intervención activa, estos sesgos se perpetúan y escalan.
-- **Las limitaciones del proxy** (usar `job` como aproximación de género) subrayan la importancia de recolectar datos demográficos reales para auditorías más rigurosas.
-- **La equidad no es opcional** — es un requisito ético y, en muchos contextos financieros, legal.
-
----
-
-## Estructura del repositorio
-
-```
+```text
 TP_equidades/
 ├── data/
-│   └── full.csv              # Dataset Bank Marketing (UCI)
+│   ├── full.csv               # Dataset Bank Marketing (UCI)
+│   ├── datasheet.md           # Ficha técnica del dataset
+│   └── consigna.pdf           # Consigna original del trabajo práctico
 ├── ej1.ipynb                  # Análisis exploratorio y marco conceptual
-├── ej2.ipynb                  # Modelo base + evaluación + análisis por proxy
-├── ej3.ipynb                  # Análisis de fairness (ambos proxies)
-├── ej4.ipynb                  # Mitigación de sesgos (ambos proxies)
-├── ej5.ipynb                  # Comparación y reflexión final
-└── README.md                  # Este archivo
+├── ej2.ipynb                  # Modelo base + evaluación de costo de errores
+├── ej3.ipynb                  # Auditoría de equidad (Fairness metrics)
+├── ej4.ipynb                  # Implementación de técnicas de mitigación
+├── ej5.ipynb                  # Comparación de métricas y reflexión final
+└── README.md                  # Este documento (Overview del TP)
 ```
 
-## Requisitos
-
-- Python 3.x
-- pandas, numpy, matplotlib, seaborn, scikit-learn
+## Requisitos Técnicos e Instalación
+Para replicar y ejecutar los notebooks se recomienda un entorno con Python 3.x y las siguientes librerías principales:
+- `pandas` y `numpy` para el manejo y manipulación de datos tabulares.
+- `matplotlib` y `seaborn` para la generación de visualizaciones.
+- `scikit-learn` para el preprocesamiento de características, modelado predictivo y cálculo de métricas de rendimiento y equidad.
