@@ -6,12 +6,12 @@
 
 ## Variables protegidas y proxies
 
-El dataset **no contiene variable de género directa**. En el Ejercicio 1 se identificaron dos proxies:
+El dataset **no contiene variable de género directa**. Para cumplir con todos los ejercicios se analizan las siguientes variables:
 
-| Proxy | Variable | Justificación |
+| Variable / Proxy | Nombre | Justificación |
 |-------|----------|---------------|
 | **Género** | `job` | Trabajos como `housemaid` y `admin.` fueron históricamente femeninos |
-| **Edad** | `marital` | El estado civil correlaciona con la etapa de vida (single→joven, married→mediana edad, divorced→mayor) |
+| **Estado civil** | `marital` | Variable protegida oficial asignada por la consigna original para el dataset Bank Marketing |
 
 > **Nota**: la variable `duration` fue excluida de todos los modelos por representar *data leakage* (solo se conoce después de la llamada).
 
@@ -22,7 +22,7 @@ El dataset **no contiene variable de género directa**. En el Ejercicio 1 se ide
 ### Ejercicio 1 — Análisis exploratorio y marco conceptual
 **Consigna**: Explorar el dataset, identificar variables protegidas, proxies de género y posibles sesgos.
 
-**Resolución**: Se identificaron los proxies `job` (género) y `marital` (edad), se documentaron desbalances de clases (~90% "no") y sub-representación en ciertos grupos demográficos. Se justificó la exclusión de `duration`.
+**Resolución**: Se identificaron las variables de `job` (proxy de género para el Ej3) y `marital` (estado civil oficial), se documentaron desbalances de clases (~90% "no") y sub-representación en ciertos grupos demográficos. Se justificó la exclusión de `duration`.
 
 ---
 
@@ -99,7 +99,7 @@ El dataset **no contiene variable de género directa**. En el Ejercicio 1 se ide
 
 ---
 
-## PROXY 2: `marital` como proxy de edad
+## VARIABLE 2: `marital` (estado civil oficial)
 
 **Grupos**: `married`, `single`, `divorced`
 
@@ -111,7 +111,7 @@ El dataset **no contiene variable de género directa**. En el Ejercicio 1 se ide
 | single | 0.8724 | 0.3483 | 0.6042 | 2296 |
 | divorced | 0.9139 | 0.2941 | 0.6250 | 871 |
 
-**Observación**: `single` (jóvenes) tiene el mayor Recall, `married` el menor. La diferencia máxima de TPR (~0.075) sugiere un posible sesgo etario pero se mantiene bajo el umbral de 0.1.
+**Observación**: `single` tiene el mayor Recall, `married` el menor. La diferencia máxima de TPR (~0.075) sugiere un posible sesgo por estado civil pero se mantiene bajo el umbral de 0.1.
 
 ### Ej3 — Fairness (umbral = 0.1)
 
@@ -122,7 +122,7 @@ El dataset **no contiene variable de género directa**. En el Ejercicio 1 se ide
 | Predictive Parity (Precision) | 0.0259 | married vs divorced | ✅ |
 | FPR (Equalized Odds) | 0.0196 | single vs divorced | ✅ |
 
-**Resultado**: El modelo original también **cumple todos los criterios de fairness** para el proxy de edad, aunque las disparidades son algo mayores que con el proxy de género.
+**Resultado**: El modelo original también **cumple todos los criterios de fairness** para el estado civil, aunque las disparidades son algo mayores que con el proxy de género.
 
 ### Ej4 — Mitigación
 

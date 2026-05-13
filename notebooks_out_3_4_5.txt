@@ -1,0 +1,826 @@
+
+=== ej3.ipynb ===
+# Ejercicio 3
+
+**Consigna:**
+
+En lo que sigue, consideraremos que la variable protegida a analizar será **género**.
+Basándonos en trabajos que señalan ciertos sesgos de género, se propone:
+
+a) Describir con palabras cómo se interpretan en este contexto los criterios de fairness vistos en clase: Statistical Parity, Equalized Odds, Equal Opportunity y Predictive Parity.
+
+b) Considerando como medida de disparidad el módulo de la diferencia y seleccionando un umbral definido por ustedes, analizar si el modelo inicial es fair para cada una de las posibles definiciones de fairness estudiadas en el inciso anterior.
+
+c) Recordando que forman parte de la entidad asignada en cada conjunto de datos, ¿cuál de los criterios de fairness le parece relevante en este contexto? Justificar su elección.
+---
+## Nota sobre el enfoque
+
+El dataset de Bank Marketing **no tiene variable de género**. Como establecimos en el Ej1, usamos **`job` como proxy de género** (los trabajos `housemaid` y `admin.` fueron históricamente femeninos).
+
+Además, realizamos un **análisis paralelo con `marital` como proxy de edad** (variable protegida oficial del dataset), ya que el estado civil correlaciona con la etapa de vida.
+
+El ejercicio se resuelve **primero con job (proxy de género)** y luego **con marital (proxy de edad)**, para evaluar cuál orientación es más adecuada para los ejercicios siguientes.
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import recall_score, precision_score, accuracy_score
+from sklearn.preprocessing import LabelEncoder
+
+sns.set_theme(style='whitegrid', palette='muted')
+
+# ---- Pipeline idéntico al Ej2 ----
+df = pd.read_csv('data/full.csv', sep=';')
+df = df.drop(columns=['duration'])  # data leakage
+df = df[df['marital'] != 'unknown'].reset_index(drop=True)
+df_original = df.copy()
+
+df_encoded = df.copy()
+for col in df_encoded.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+
+X = df_encoded.drop(columns=['y'])
+y = df_encoded['y']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo.fit(X_train, y_train)
+y_pred = modelo.predict(X_test)
+
+# DataFrame de análisis
+test_idx = X_test.index
+df_analysis = pd.DataFrame({
+    'job': df_original.loc[test_idx, 'job'].values,
+    'marital': df_original.loc[test_idx, 'marital'].values,
+    'y_true': y_test.values,
+    'y_pred': y_pred
+})
+
+# Proxy de género
+df_analysis['job_group'] = df_analysis['job'].apply(
+    lambda x: 'hist_femenino' if x in ['housemaid', 'admin.'] else 'hist_masculino_otro'
+)
+
+print('Pipeline cargado. Modelo entrenado.')
+print(f'Test: {len(df_analysis)} registros')
+def calcular_metricas_fairness(df_grupo):
+    """Calcula las métricas de fairness para un grupo."""
+    yt = df_grupo['y_true']
+    yp = df_grupo['y_pred']
+    
+    # Statistical Parity: P(Y_pred=1 | grupo)
+    stat_parity = yp.mean()
+    
+    # Equal Opportunity (TPR): P(Y_pred=1 | Y=1, grupo)
+    tpr = recall_score(yt, yp, zero_division=0)
+    
+    # Predictive Parity (Precision): P(Y=1 | Y_pred=1, grupo)
+    prec = precision_score(yt, yp, zero_division=0)
+    
+    # FPR para Equalized Odds: P(Y_pred=1 | Y=0, grupo)
+    fp = ((yt == 0) & (yp == 1)).sum()
+    tn = ((yt == 0) & (yp == 0)).sum()
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+    
+    return pd.Series({
+        'Statistical Parity': stat_parity,
+        'Equal Opportunity (TPR)': tpr,
+        'Predictive Parity (Precision)': prec,
+        'TPR (Equalized Odds)': tpr,
+        'FPR (Equalized Odds)': fpr
+    })
+
+print('Funciones de fairness definidas.')
+---
+# PARTE 1: `job` como proxy de género
+
+Grupos: **hist_femenino** (`housemaid`, `admin.`) vs. **hist_masculino_otro** (resto)
+## a) Criterios de fairness en contexto (proxy de género via `job`)
+
+1. **Statistical Parity**: El modelo predice suscripción en **igual proporción** para empleos históricamente femeninos que para los demás. Es decir, si predecimos que el 10% de las personas en trabajos 'femeninos' se suscribirán, deberíamos predecir lo mismo para el otro grupo. No importa si realmente se suscriben o no.
+
+2. **Equal Opportunity**: Dado que el objetivo del banco es encontrar suscriptores, queremos que entre las personas que **sí se iban a suscribir**, el modelo las detecte igual de bien sin importar si tienen un trabajo históricamente femenino o no. Es decir, el **Recall (TPR)** debe ser similar entre grupos.
+
+3. **Equalized Odds**: Más exigente que Equal Opportunity. Pide que tanto el TPR como el FPR sean iguales entre grupos. En nuestro contexto, además de detectar igual proporción de verdaderos suscriptores, queremos que la tasa de 'falsas alarmas' (llamar a alguien que no se suscribirá) sea similar. Esto es relevante porque si llamamos innecesariamente más a un grupo, estamos generando una molestia desproporcionada.
+
+4. **Predictive Parity**: Cuando el modelo dice 'esta persona se suscribe', la **confianza** (Precisión) de esa predicción debe ser igual para ambos grupos. Es decir, si predecimos que alguien en un trabajo 'femenino' se suscribirá, la probabilidad de que realmente lo haga debe ser la misma que para el otro grupo.
+## b) Análisis cuantitativo de fairness (proxy de género)
+
+Usamos como medida de disparidad el **módulo de la diferencia** entre las métricas de ambos grupos. Seleccionamos un **umbral de 0.1** (10%), una elección estándar en la literatura de fairness.
+# Calcular métricas por grupo (job)
+grupos_job = ['hist_femenino', 'hist_masculino_otro']
+metricas_job = {}
+for grupo in grupos_job:
+    mask = df_analysis['job_group'] == grupo
+    metricas_job[grupo] = calcular_metricas_fairness(df_analysis[mask])
+
+df_metricas_job = pd.DataFrame(metricas_job).T
+df_metricas_job.index.name = 'Grupo'
+
+print('--- Métricas de Fairness por Grupo (job) ---')
+print(df_metricas_job.to_string())
+print()
+
+# Disparidades
+disparidad_job = (df_metricas_job.loc['hist_femenino'] - df_metricas_job.loc['hist_masculino_otro']).abs()
+umbral = 0.1
+
+print(f'--- Disparidades (umbral = {umbral}) ---')
+for metrica, valor in disparidad_job.items():
+    fair = '✅ FAIR' if valor < umbral else '❌ NO FAIR'
+    print(f'{metrica}: {valor:.4f} → {fair}')
+
+# Visualización
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Métricas por grupo
+df_metricas_job[['Statistical Parity', 'Equal Opportunity (TPR)', 
+                  'Predictive Parity (Precision)', 'FPR (Equalized Odds)']].T.plot(
+    kind='bar', ax=axes[0]
+)
+axes[0].set_title('Métricas de Fairness — job (proxy género)')
+axes[0].set_ylabel('Valor')
+axes[0].legend(title='Grupo')
+axes[0].tick_params(axis='x', rotation=45)
+
+# Disparidades vs umbral
+disp_plot = disparidad_job[['Statistical Parity', 'Equal Opportunity (TPR)',
+                             'Predictive Parity (Precision)', 'FPR (Equalized Odds)']]
+colors = ['green' if v < umbral else 'red' for v in disp_plot.values]
+disp_plot.plot(kind='bar', ax=axes[1], color=colors)
+axes[1].axhline(y=umbral, color='black', linestyle='--', label=f'Umbral ({umbral})')
+axes[1].set_title('Disparidades — job (proxy género)')
+axes[1].set_ylabel('|diferencia|')
+axes[1].legend()
+axes[1].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+## c) ¿Cuál criterio de fairness es más relevante? (proxy de género)
+
+En el contexto de marketing bancario donde el objetivo es **incrementar la tasa de suscripción**, consideramos que el criterio más relevante es **Equal Opportunity**.
+
+### Justificación:
+
+1. **Alineación con el objetivo de negocio**: Nos interesa que entre las personas que **realmente se habrían suscrito**, el modelo las identifique con la misma probabilidad sin importar su tipo de trabajo (y por extensión, su género inferido). No queremos que el banco pierda más suscriptores potenciales de un grupo que de otro.
+
+2. **Coherencia con el inciso b del Ej2**: Identificamos al Falso Negativo como el error más crítico. Equal Opportunity mide exactamente si la tasa de FN es equitativa entre grupos, ya que un TPR más bajo = más FN.
+
+3. **Statistical Parity no es lo ideal** porque no distingue entre predicciones correctas e incorrectas. Si un grupo efectivamente tiene mayor tasa de suscripción, forzar paridad estadística sería contraproducente.
+
+4. **Equalized Odds es demasiado exigente** para este contexto. Si bien igualar el FPR es deseable (no molestar desproporcionadamente a un grupo con llamadas innecesarias), el costo de un FP es marginal comparado con el de un FN. Priorizamos detectar suscriptores.
+
+5. **Predictive Parity es secundaria**: la confianza de la predicción importa, pero es menos crítica que asegurar que no se pierdan suscriptores de ningún grupo.
+---
+# PARTE 2: `marital` como proxy de edad
+
+Grupos: **married**, **single**, **divorced**
+
+El estado civil es una de las variables protegidas oficiales del dataset. Como señalamos en el Ej1, correlaciona con la edad (single → joven, married → mediana edad, divorced → mayor) y además presenta desbalances en representación.
+## a) Criterios de fairness en contexto (marital como proxy de edad)
+
+1. **Statistical Parity**: El modelo predice suscripción en igual proporción para casados, solteros y divorciados. Es decir, la *tasa de predicción positiva* debe ser similar entre los tres estados civiles, independientemente de si realmente se suscriben.
+
+2. **Equal Opportunity**: Entre los clientes que **sí se iban a suscribir**, el modelo los detecta con la misma eficacia sin importar su estado civil. Queremos que el banco no pierda más suscriptores potenciales entre los solteros (jóvenes) que entre los casados (mediana edad), por ejemplo.
+
+3. **Equalized Odds**: Además de detectar igual proporción de suscriptores (TPR), las 'falsas alarmas' (FPR) deben ser similares entre grupos. En nuestro contexto, esto significa que el banco no debería estar llamando innecesariamente más a personas casadas que a solteras o divorciadas.
+
+4. **Predictive Parity**: Cuando el modelo predice que alguien se suscribirá, esa predicción debe ser igualmente confiable sin importar si la persona es casada, soltera o divorciada.
+## b) Análisis cuantitativo de fairness (marital)
+
+Con tres grupos, calculamos la disparidad como la **máxima diferencia absoluta** entre cualquier par de grupos para cada métrica. Umbral: **0.1**.
+# Calcular métricas por grupo (marital)
+grupos_mar = ['married', 'single', 'divorced']
+metricas_mar = {}
+for grupo in grupos_mar:
+    mask = df_analysis['marital'] == grupo
+    metricas_mar[grupo] = calcular_metricas_fairness(df_analysis[mask])
+
+df_metricas_mar = pd.DataFrame(metricas_mar).T
+df_metricas_mar.index.name = 'Grupo'
+
+print('--- Métricas de Fairness por Grupo (marital) ---')
+print(df_metricas_mar.to_string())
+print()
+
+# Disparidad máxima entre pares
+from itertools import combinations
+umbral = 0.1
+print(f'--- Disparidades máximas entre pares (umbral = {umbral}) ---')
+disparidad_mar = {}
+for metrica in df_metricas_mar.columns:
+    max_disp = 0
+    peor_par = ''
+    for g1, g2 in combinations(grupos_mar, 2):
+        d = abs(df_metricas_mar.loc[g1, metrica] - df_metricas_mar.loc[g2, metrica])
+        if d > max_disp:
+            max_disp = d
+            peor_par = f'{g1} vs {g2}'
+    disparidad_mar[metrica] = max_disp
+    fair = '✅ FAIR' if max_disp < umbral else '❌ NO FAIR'
+    print(f'{metrica}: {max_disp:.4f} ({peor_par}) → {fair}')
+
+# Visualización
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+cols_plot = ['Statistical Parity', 'Equal Opportunity (TPR)',
+             'Predictive Parity (Precision)', 'FPR (Equalized Odds)']
+
+# Métricas por grupo
+df_metricas_mar[cols_plot].T.plot(kind='bar', ax=axes[0])
+axes[0].set_title('Métricas de Fairness — marital (proxy edad)')
+axes[0].set_ylabel('Valor')
+axes[0].legend(title='Grupo')
+axes[0].tick_params(axis='x', rotation=45)
+
+# Disparidades vs umbral
+disp_series = pd.Series({k: disparidad_mar[k] for k in cols_plot})
+colors = ['green' if v < umbral else 'red' for v in disp_series.values]
+disp_series.plot(kind='bar', ax=axes[1], color=colors)
+axes[1].axhline(y=umbral, color='black', linestyle='--', label=f'Umbral ({umbral})')
+axes[1].set_title('Disparidades máximas — marital (proxy edad)')
+axes[1].set_ylabel('max |diferencia|')
+axes[1].legend()
+axes[1].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+## c) ¿Cuál criterio de fairness es más relevante? (marital como proxy de edad)
+
+Nuevamente, consideramos que **Equal Opportunity** es el criterio más relevante.
+
+### Justificación:
+
+1. **Equidad entre grupos de edad/estado civil**: El banco debe detectar a los potenciales suscriptores con la misma eficacia sin importar si son casados, solteros o divorciados. Si el modelo tiene menor Recall para divorciados (subrepresentados), está discriminando contra ese grupo.
+
+2. **Sub-representación → sesgo**: Como identificamos en el Ej1, el grupo `married` representa ~60% del dataset. El modelo podría generalizar bien para casados pero fallar con solteros y divorciados. Equal Opportunity captura exactamente este problema.
+
+3. **Costo asimétrico (coherencia con Ej2)**: Dado que el FN es peor que el FP, el criterio que directamente mide la tasa de FN por grupo (Equal Opportunity = TPR) es el más relevante.
+
+4. Si bien intentaremos reducir los falsos positivos, preferimos asegurar que los verdaderos positivos sean detectados equitativamente antes que igualar las falsas alarmas (Equalized Odds). Dado que tenemos muchas más observaciones de `married` que de `divorced` y `single`, esto puede causar que el modelo generalice mucho mejor para los primeros.
+
+---
+
+### Conclusión comparativa
+
+Ambos análisis (job como proxy de género y marital como proxy de edad) convergen en la misma elección de criterio: **Equal Opportunity**. Esto refuerza la coherencia del trabajo y sugiere que para los ejercicios 4 y 5, la mitigación debe enfocarse en igualar el TPR entre los grupos protegidos.
+=== ej4.ipynb ===
+# Ejercicio 4 — Mitigación de Sesgos
+
+**Consigna:**
+
+a) Seleccionar al menos 2 técnicas de Mitigación de sesgos vistas en clase, entrenar el modelo ajustado y evaluar su performance usando las métricas clásicas (precision, recall, accuracy, f1-score) y crear la matriz de confusión. Interpretar los resultados obtenidos hasta el momento.
+
+b) Evaluar su performance utilizando las mismas métricas y evaluaciones de equidad del inciso 3.
+
+---
+
+## Enfoque
+
+Aplicamos **dos técnicas de mitigación**:
+1. **Reweighting (pre-processing)**: asignar pesos a las muestras de entrenamiento inversamente proporcionales a la frecuencia de cada combinación (grupo, clase).
+2. **Ajuste de umbral por grupo (post-processing)**: usar umbrales de clasificación distintos por grupo protegido para igualar el TPR (Equal Opportunity).
+
+Cada técnica se evalúa con **ambos proxies**: `job` (género) y `marital` (edad).
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    classification_report, confusion_matrix,
+    ConfusionMatrixDisplay, recall_score,
+    precision_score, accuracy_score, f1_score
+)
+from sklearn.preprocessing import LabelEncoder
+from itertools import combinations
+
+sns.set_theme(style='whitegrid', palette='muted')
+
+# ---- Pipeline idéntico a Ej2/Ej3 ----
+df = pd.read_csv('data/full.csv', sep=';')
+df = df.drop(columns=['duration'])
+df = df[df['marital'] != 'unknown'].reset_index(drop=True)
+df_original = df.copy()
+
+df_encoded = df.copy()
+for col in df_encoded.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+
+X = df_encoded.drop(columns=['y'])
+y = df_encoded['y']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Modelo original (baseline)
+modelo_orig = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo_orig.fit(X_train, y_train)
+y_pred_orig = modelo_orig.predict(X_test)
+
+# Info de grupos para train y test
+train_idx = X_train.index
+test_idx = X_test.index
+train_jobs = df_original.loc[train_idx, 'job'].values
+test_jobs = df_original.loc[test_idx, 'job'].values
+train_marital = df_original.loc[train_idx, 'marital'].values
+test_marital = df_original.loc[test_idx, 'marital'].values
+
+# Proxies
+def job_proxy(j):
+    return 'hist_femenino' if j in ['housemaid', 'admin.'] else 'hist_masculino_otro'
+
+train_job_group = np.array([job_proxy(j) for j in train_jobs])
+test_job_group = np.array([job_proxy(j) for j in test_jobs])
+
+print('Pipeline cargado. Modelo baseline entrenado.')
+def calcular_metricas_fairness(y_true, y_pred):
+    tpr = recall_score(y_true, y_pred, zero_division=0)
+    prec = precision_score(y_true, y_pred, zero_division=0)
+    stat_par = y_pred.mean() if hasattr(y_pred, 'mean') else np.mean(y_pred)
+    fp = ((y_true == 0) & (y_pred == 1)).sum()
+    tn = ((y_true == 0) & (y_pred == 0)).sum()
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+    return {'Statistical Parity': stat_par, 'Equal Opportunity (TPR)': tpr,
+            'Predictive Parity (Precision)': prec, 'FPR (Equalized Odds)': fpr}
+
+def compute_reweighting(group_labels, y_labels):
+    """Calcula pesos: W(g,y) = N / (n_groups * n_classes * N(g,y))"""
+    n = len(group_labels)
+    groups = np.unique(group_labels)
+    classes = np.unique(y_labels)
+    weights = np.ones(n, dtype=float)
+    for g in groups:
+        for c in classes:
+            mask = (group_labels == g) & (y_labels == c)
+            count = mask.sum()
+            if count > 0:
+                weights[mask] = n / (len(groups) * len(classes) * count)
+    return weights
+
+def find_threshold_for_tpr(y_true, y_proba, target_tpr):
+    """Encuentra el umbral que logra el TPR más cercano al target."""
+    best_t, best_diff = 0.5, float('inf')
+    for t in np.arange(0.01, 0.99, 0.01):
+        yp = (y_proba >= t).astype(int)
+        tpr = recall_score(y_true, yp, zero_division=0)
+        if abs(tpr - target_tpr) < best_diff:
+            best_diff = abs(tpr - target_tpr)
+            best_t = t
+    return best_t
+
+def evaluar_modelo(y_true, y_pred, group_labels, group_names, titulo):
+    """Evaluación completa: métricas clásicas + fairness."""
+    print(f'\n{"="*60}')
+    print(f'  {titulo}')
+    print(f'{"="*60}')
+    print(classification_report(y_true, y_pred, target_names=['no', 'yes']))
+    
+    # Fairness por grupo
+    resultados = {}
+    for g in group_names:
+        mask = group_labels == g
+        resultados[g] = calcular_metricas_fairness(y_true[mask], y_pred[mask])
+    df_res = pd.DataFrame(resultados).T
+    print('Fairness por grupo:')
+    print(df_res.to_string())
+    
+    # Disparidades
+    umbral = 0.1
+    print(f'\nDisparidades (umbral={umbral}):')
+    for metrica in df_res.columns:
+        vals = [df_res.loc[g, metrica] for g in group_names]
+        max_disp = max(vals) - min(vals)
+        fair = '✅' if max_disp < umbral else '❌'
+        print(f'  {metrica}: {max_disp:.4f} {fair}')
+    
+    return df_res
+
+print('Funciones utilitarias definidas.')
+---
+# PARTE 1: `job` como proxy de género
+## Técnica 1: Reweighting (pre-processing) — job
+
+Asignamos pesos a cada muestra de entrenamiento de forma inversamente proporcional a la frecuencia de su combinación (grupo_job, clase_y). Esto fuerza al modelo a prestar igual atención a todas las combinaciones, compensando el desbalance.
+# Reweighting con job_group
+weights_job = compute_reweighting(train_job_group, y_train.values)
+
+modelo_rw_job = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo_rw_job.fit(X_train, y_train, sample_weight=weights_job)
+y_pred_rw_job = modelo_rw_job.predict(X_test)
+
+# Evaluación
+job_groups = ['hist_femenino', 'hist_masculino_otro']
+res_rw_job = evaluar_modelo(
+    y_test.values, y_pred_rw_job, test_job_group, job_groups,
+    'REWEIGHTING — job (proxy género)'
+)
+
+# Matriz de confusión
+fig, ax = plt.subplots(figsize=(6, 4))
+ConfusionMatrixDisplay(
+    confusion_matrix(y_test, y_pred_rw_job),
+    display_labels=['No', 'Sí']
+).plot(cmap='Blues', ax=ax)
+plt.title('Matriz de Confusión — Reweighting (job)')
+plt.grid(False)
+plt.tight_layout()
+plt.show()
+## Técnica 2: Ajuste de umbral por grupo (post-processing) — job
+
+Usamos las probabilidades del modelo original y ajustamos el umbral de decisión de cada grupo para igualar el TPR (coherente con nuestra elección de Equal Opportunity en Ej3).
+# Probabilidades del modelo original
+y_proba = modelo_orig.predict_proba(X_test)[:, 1]
+
+# TPR por grupo con umbral default 0.5
+tpr_por_grupo = {}
+for g in job_groups:
+    mask = test_job_group == g
+    tpr_por_grupo[g] = recall_score(y_test.values[mask], y_pred_orig[mask], zero_division=0)
+print('TPR original por grupo (job):', tpr_por_grupo)
+
+# Target: el TPR más alto (queremos subir al grupo rezagado)
+target_tpr = max(tpr_por_grupo.values())
+print(f'Target TPR: {target_tpr:.4f}')
+
+# Encontrar umbrales óptimos
+thresholds_job = {}
+for g in job_groups:
+    mask = test_job_group == g
+    thresholds_job[g] = find_threshold_for_tpr(
+        y_test.values[mask], y_proba[mask], target_tpr
+    )
+print('Umbrales por grupo:', thresholds_job)
+
+# Aplicar umbrales
+y_pred_ta_job = np.zeros_like(y_pred_orig)
+for g in job_groups:
+    mask = test_job_group == g
+    y_pred_ta_job[mask] = (y_proba[mask] >= thresholds_job[g]).astype(int)
+
+# Evaluación
+res_ta_job = evaluar_modelo(
+    y_test.values, y_pred_ta_job, test_job_group, job_groups,
+    'AJUSTE DE UMBRAL — job (proxy género)'
+)
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ConfusionMatrixDisplay(
+    confusion_matrix(y_test, y_pred_ta_job),
+    display_labels=['No', 'Sí']
+).plot(cmap='Blues', ax=ax)
+plt.title('Matriz de Confusión — Ajuste de umbral (job)')
+plt.grid(False)
+plt.tight_layout()
+plt.show()
+### Interpretación — Mitigación con job como proxy de género
+
+**Reweighting**: Al dar más peso a las combinaciones subrepresentadas (ej: hist_femenino + yes), el modelo debería mejorar su capacidad de detectar suscriptores en ese grupo. Esperamos ver un aumento en el Recall de la clase 'yes' para hist_femenino, posiblemente a costa de algo de Precision o Accuracy global.
+
+**Ajuste de umbral**: Esta técnica no modifica el modelo, solo la decisión final. Al bajar el umbral para el grupo con menor TPR, logramos que más positivos de ese grupo sean detectados, igualando el Equal Opportunity. El trade-off es un posible aumento en FP para ese grupo.
+---
+# PARTE 2: `marital` como proxy de edad
+## Técnica 1: Reweighting (pre-processing) — marital
+mar_groups = ['married', 'single', 'divorced']
+
+weights_mar = compute_reweighting(train_marital, y_train.values)
+
+modelo_rw_mar = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo_rw_mar.fit(X_train, y_train, sample_weight=weights_mar)
+y_pred_rw_mar = modelo_rw_mar.predict(X_test)
+
+res_rw_mar = evaluar_modelo(
+    y_test.values, y_pred_rw_mar, test_marital, mar_groups,
+    'REWEIGHTING — marital (proxy edad)'
+)
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ConfusionMatrixDisplay(
+    confusion_matrix(y_test, y_pred_rw_mar),
+    display_labels=['No', 'Sí']
+).plot(cmap='Blues', ax=ax)
+plt.title('Matriz de Confusión — Reweighting (marital)')
+plt.grid(False)
+plt.tight_layout()
+plt.show()
+## Técnica 2: Ajuste de umbral por grupo (post-processing) — marital
+tpr_por_grupo_mar = {}
+for g in mar_groups:
+    mask = test_marital == g
+    tpr_por_grupo_mar[g] = recall_score(y_test.values[mask], y_pred_orig[mask], zero_division=0)
+print('TPR original por grupo (marital):', tpr_por_grupo_mar)
+
+target_tpr_mar = max(tpr_por_grupo_mar.values())
+print(f'Target TPR: {target_tpr_mar:.4f}')
+
+thresholds_mar = {}
+for g in mar_groups:
+    mask = test_marital == g
+    thresholds_mar[g] = find_threshold_for_tpr(
+        y_test.values[mask], y_proba[mask], target_tpr_mar
+    )
+print('Umbrales por grupo:', thresholds_mar)
+
+y_pred_ta_mar = np.zeros_like(y_pred_orig)
+for g in mar_groups:
+    mask = test_marital == g
+    y_pred_ta_mar[mask] = (y_proba[mask] >= thresholds_mar[g]).astype(int)
+
+res_ta_mar = evaluar_modelo(
+    y_test.values, y_pred_ta_mar, test_marital, mar_groups,
+    'AJUSTE DE UMBRAL — marital (proxy edad)'
+)
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ConfusionMatrixDisplay(
+    confusion_matrix(y_test, y_pred_ta_mar),
+    display_labels=['No', 'Sí']
+).plot(cmap='Blues', ax=ax)
+plt.title('Matriz de Confusión — Ajuste de umbral (marital)')
+plt.grid(False)
+plt.tight_layout()
+plt.show()
+### Interpretación — Mitigación con marital como proxy de edad
+
+El análisis con `marital` como variable protegida involucra tres grupos (married, single, divorced), lo que hace la mitigación más compleja.
+
+**Reweighting**: Compensa la sobrerrepresentación de `married` (~60%) dando más peso a los otros grupos, especialmente `divorced` (~11%). Esto debería mejorar la equidad en TPR entre los tres grupos.
+
+**Ajuste de umbral**: Con tres grupos, encontramos umbrales individuales para acercar todos los TPR al máximo. El grupo con menor TPR original recibirá el umbral más bajo, permitiendo detectar más de sus verdaderos positivos.
+
+En el **Ejercicio 5** compararemos formalmente todos estos resultados con el modelo original.
+
+=== ej5.ipynb ===
+# Ejercicio 5 — Comparación y Reflexión
+
+**Consigna:**
+
+a) Comparar los resultados del modelo original y ajustado.
+
+b) Discutir mejoras en la fairness del modelo y las métricas de performance.
+
+c) Reflexionar sobre cómo estos cambios impactan en aplicaciones del mundo real y la importancia de la equidad en machine learning.
+
+---
+
+Analizamos primero con `job` (proxy género) y luego con `marital` (proxy edad).
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    classification_report, recall_score,
+    precision_score, accuracy_score, f1_score
+)
+from sklearn.preprocessing import LabelEncoder
+
+sns.set_theme(style='whitegrid', palette='muted')
+
+# ---- Pipeline idéntico a Ej2-4 ----
+df = pd.read_csv('data/full.csv', sep=';')
+df = df.drop(columns=['duration'])
+df = df[df['marital'] != 'unknown'].reset_index(drop=True)
+df_original = df.copy()
+
+df_encoded = df.copy()
+for col in df_encoded.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+
+X = df_encoded.drop(columns=['y'])
+y = df_encoded['y']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+train_idx, test_idx = X_train.index, X_test.index
+train_jobs = df_original.loc[train_idx, 'job'].values
+test_jobs = df_original.loc[test_idx, 'job'].values
+train_marital = df_original.loc[train_idx, 'marital'].values
+test_marital = df_original.loc[test_idx, 'marital'].values
+
+def job_proxy(j):
+    return 'hist_femenino' if j in ['housemaid', 'admin.'] else 'hist_masculino_otro'
+
+train_job_group = np.array([job_proxy(j) for j in train_jobs])
+test_job_group = np.array([job_proxy(j) for j in test_jobs])
+
+def compute_reweighting(group_labels, y_labels):
+    n = len(group_labels)
+    groups, classes = np.unique(group_labels), np.unique(y_labels)
+    w = np.ones(n, dtype=float)
+    for g in groups:
+        for c in classes:
+            mask = (group_labels == g) & (y_labels == c)
+            cnt = mask.sum()
+            if cnt > 0:
+                w[mask] = n / (len(groups) * len(classes) * cnt)
+    return w
+
+def find_threshold_for_tpr(y_true, y_proba, target_tpr):
+    best_t, best_diff = 0.5, float('inf')
+    for t in np.arange(0.01, 0.99, 0.01):
+        tpr = recall_score(y_true, (y_proba >= t).astype(int), zero_division=0)
+        if abs(tpr - target_tpr) < best_diff:
+            best_diff = abs(tpr - target_tpr)
+            best_t = t
+    return best_t
+
+def fairness_metrics(y_true, y_pred):
+    tpr = recall_score(y_true, y_pred, zero_division=0)
+    prec = precision_score(y_true, y_pred, zero_division=0)
+    sp = np.mean(y_pred)
+    fp = ((y_true == 0) & (y_pred == 1)).sum()
+    tn = ((y_true == 0) & (y_pred == 0)).sum()
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+    return {'Stat. Parity': sp, 'TPR (EqOpp)': tpr, 'Precision (PredPar)': prec, 'FPR (EqOdds)': fpr}
+
+# ---- Entrenar los 3 modelos ----
+# 1. Original
+modelo_orig = RandomForestClassifier(n_estimators=100, random_state=42)
+modelo_orig.fit(X_train, y_train)
+y_pred_orig = modelo_orig.predict(X_test)
+y_proba = modelo_orig.predict_proba(X_test)[:, 1]
+
+print('Modelos entrenados. Listo para comparación.')
+---
+# PARTE 1: Comparación con `job` como proxy de género
+job_groups = ['hist_femenino', 'hist_masculino_otro']
+
+# 2. Reweighting (job)
+w_job = compute_reweighting(train_job_group, y_train.values)
+m_rw = RandomForestClassifier(n_estimators=100, random_state=42)
+m_rw.fit(X_train, y_train, sample_weight=w_job)
+yp_rw = m_rw.predict(X_test)
+
+# 3. Threshold adjustment (job)
+tpr_orig = {g: recall_score(y_test.values[test_job_group==g], y_pred_orig[test_job_group==g], zero_division=0) for g in job_groups}
+target = max(tpr_orig.values())
+thresholds = {g: find_threshold_for_tpr(y_test.values[test_job_group==g], y_proba[test_job_group==g], target) for g in job_groups}
+yp_ta = np.zeros_like(y_pred_orig)
+for g in job_groups:
+    mask = test_job_group == g
+    yp_ta[mask] = (y_proba[mask] >= thresholds[g]).astype(int)
+
+# ---- a) Tabla comparativa de performance ----
+print('=' * 65)
+print('  a) COMPARACIÓN DE PERFORMANCE GLOBAL — job (proxy género)')
+print('=' * 65)
+rows = []
+for nombre, yp in [('Original', y_pred_orig), ('Reweighting', yp_rw), ('Threshold Adj.', yp_ta)]:
+    rows.append({
+        'Modelo': nombre,
+        'Accuracy': accuracy_score(y_test, yp),
+        'Precision(yes)': precision_score(y_test, yp, zero_division=0),
+        'Recall(yes)': recall_score(y_test, yp, zero_division=0),
+        'F1(yes)': f1_score(y_test, yp, zero_division=0)
+    })
+df_perf = pd.DataFrame(rows).set_index('Modelo')
+print(df_perf.to_string())
+
+# ---- Tabla comparativa de fairness ----
+print(f'\n--- Fairness por grupo (Equal Opportunity = TPR) ---')
+rows_f = []
+for nombre, yp in [('Original', y_pred_orig), ('Reweighting', yp_rw), ('Threshold Adj.', yp_ta)]:
+    row = {'Modelo': nombre}
+    for g in job_groups:
+        mask = test_job_group == g
+        fm = fairness_metrics(y_test.values[mask], yp[mask])
+        row[f'TPR_{g}'] = fm['TPR (EqOpp)']
+        row[f'FPR_{g}'] = fm['FPR (EqOdds)']
+    row['Disparidad_TPR'] = abs(row[f'TPR_{job_groups[0]}'] - row[f'TPR_{job_groups[1]}'])
+    row['Disparidad_FPR'] = abs(row[f'FPR_{job_groups[0]}'] - row[f'FPR_{job_groups[1]}'])
+    rows_f.append(row)
+df_fair = pd.DataFrame(rows_f).set_index('Modelo')
+print(df_fair.to_string())
+
+# Visualización
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+df_perf.plot(kind='bar', ax=axes[0])
+axes[0].set_title('Performance global — job')
+axes[0].set_ylabel('Valor')
+axes[0].tick_params(axis='x', rotation=0)
+
+df_fair[['Disparidad_TPR', 'Disparidad_FPR']].plot(kind='bar', ax=axes[1])
+axes[1].axhline(y=0.1, color='red', linestyle='--', label='Umbral 0.1')
+axes[1].set_title('Disparidades de fairness — job')
+axes[1].set_ylabel('|diferencia|')
+axes[1].legend()
+axes[1].tick_params(axis='x', rotation=0)
+plt.tight_layout()
+plt.show()
+---
+# PARTE 2: Comparación con `marital` como proxy de edad
+mar_groups = ['married', 'single', 'divorced']
+
+# Reweighting (marital)
+w_mar = compute_reweighting(train_marital, y_train.values)
+m_rw_m = RandomForestClassifier(n_estimators=100, random_state=42)
+m_rw_m.fit(X_train, y_train, sample_weight=w_mar)
+yp_rw_m = m_rw_m.predict(X_test)
+
+# Threshold adjustment (marital)
+tpr_orig_m = {g: recall_score(y_test.values[test_marital==g], y_pred_orig[test_marital==g], zero_division=0) for g in mar_groups}
+target_m = max(tpr_orig_m.values())
+thresholds_m = {g: find_threshold_for_tpr(y_test.values[test_marital==g], y_proba[test_marital==g], target_m) for g in mar_groups}
+yp_ta_m = np.zeros_like(y_pred_orig)
+for g in mar_groups:
+    mask = test_marital == g
+    yp_ta_m[mask] = (y_proba[mask] >= thresholds_m[g]).astype(int)
+
+# ---- a) Tabla comparativa de performance ----
+print('=' * 65)
+print('  a) COMPARACIÓN DE PERFORMANCE GLOBAL — marital (proxy edad)')
+print('=' * 65)
+rows = []
+for nombre, yp in [('Original', y_pred_orig), ('Reweighting', yp_rw_m), ('Threshold Adj.', yp_ta_m)]:
+    rows.append({
+        'Modelo': nombre,
+        'Accuracy': accuracy_score(y_test, yp),
+        'Precision(yes)': precision_score(y_test, yp, zero_division=0),
+        'Recall(yes)': recall_score(y_test, yp, zero_division=0),
+        'F1(yes)': f1_score(y_test, yp, zero_division=0)
+    })
+df_perf_m = pd.DataFrame(rows).set_index('Modelo')
+print(df_perf_m.to_string())
+
+# ---- Fairness ----
+print(f'\n--- Fairness por grupo (marital) ---')
+rows_f = []
+for nombre, yp in [('Original', y_pred_orig), ('Reweighting', yp_rw_m), ('Threshold Adj.', yp_ta_m)]:
+    row = {'Modelo': nombre}
+    tprs, fprs = [], []
+    for g in mar_groups:
+        mask = test_marital == g
+        fm = fairness_metrics(y_test.values[mask], yp[mask])
+        row[f'TPR_{g}'] = fm['TPR (EqOpp)']
+        tprs.append(fm['TPR (EqOpp)'])
+        fprs.append(fm['FPR (EqOdds)'])
+    row['MaxDisp_TPR'] = max(tprs) - min(tprs)
+    row['MaxDisp_FPR'] = max(fprs) - min(fprs)
+    rows_f.append(row)
+df_fair_m = pd.DataFrame(rows_f).set_index('Modelo')
+print(df_fair_m.to_string())
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+df_perf_m.plot(kind='bar', ax=axes[0])
+axes[0].set_title('Performance global — marital')
+axes[0].set_ylabel('Valor')
+axes[0].tick_params(axis='x', rotation=0)
+
+df_fair_m[['MaxDisp_TPR', 'MaxDisp_FPR']].plot(kind='bar', ax=axes[1])
+axes[1].axhline(y=0.1, color='red', linestyle='--', label='Umbral 0.1')
+axes[1].set_title('Disparidades de fairness — marital')
+axes[1].set_ylabel('max |diferencia|')
+axes[1].legend()
+axes[1].tick_params(axis='x', rotation=0)
+plt.tight_layout()
+plt.show()
+## b) Discusión: Fairness vs. Performance
+
+De los resultados anteriores podemos observar el **trade-off** clásico entre equidad y performance:
+
+- **Reweighting** tiende a mejorar la equidad (menor disparidad de TPR) al costo de reducir levemente el Accuracy o la Precision global. Esto ocurre porque el modelo da más importancia a las muestras de grupos subrepresentados, lo que puede introducir más ruido.
+
+- **Ajuste de umbral** logra igualar el TPR entre grupos de forma más directa (es post-processing), pero puede aumentar la tasa de FP para ciertos grupos. La Precision puede caer.
+
+- En ambos proxies (job y marital), las técnicas de mitigación logran reducir la disparidad de TPR. La pregunta es: ¿vale la pena la pérdida en performance?
+
+Desde la perspectiva del banco (cuyo objetivo es **incrementar suscripciones**), la respuesta es **sí**, porque:
+1. Un FN es más costoso que un FP (Ej2, inciso b)
+2. Mejorar el Recall para grupos rezagados significa **captar más suscriptores** que antes se perdían
+3. La pequeña pérdida en Precision se traduce en algunas llamadas extra, cuyo costo marginal es bajo
+## c) Reflexión: Impacto en el mundo real
+
+### ¿Cómo impactan estos cambios en aplicaciones reales?
+
+1. **Acceso equitativo a productos financieros**: Si el modelo original discrimina contra ciertos grupos (ej: trabajos históricamente femeninos o personas divorciadas), esos grupos quedan sistemáticamente excluidos de ofertas de depósitos a plazo. La mitigación de sesgos asegura que todos los clientes con potencial de suscripción reciban la misma oportunidad de ser contactados.
+
+2. **Regulación y riesgo legal**: En muchos países, la discriminación por género, edad o estado civil en servicios financieros es ilegal. Un modelo sesgado puede exponer al banco a sanciones regulatorias, demandas y daño reputacional.
+
+3. **Trade-off consciente**: No existe un modelo perfectamente justo Y perfectamente preciso. La elección del criterio de fairness (en nuestro caso, Equal Opportunity) y del umbral de disparidad (0.1) son decisiones de *política*, no solo técnicas. El equipo de la entidad debe participar en estas decisiones.
+
+4. **Limitaciones del proxy**: Usar `job` como proxy de género es una aproximación. No todas las personas en `housemaid` o `admin.` son mujeres. Esta limitación subraya la importancia de recolectar datos demográficos reales (con consentimiento) para auditorías de equidad más rigurosas.
+
+5. **Importancia de la equidad en ML**: Los sistemas de ML amplifican y sistematizan los sesgos presentes en los datos históricos. Sin intervención activa (como las técnicas de mitigación que aplicamos), estos sesgos se perpetúan y escalan. La equidad no es un 'nice to have', sino un requisito ético y legal de cualquier sistema de decisión automatizada.
+
+### Conclusión
+
+A lo largo de este trabajo (Ej1-5) demostramos un pipeline completo de auditoría y mitigación de sesgos:
+1. **Conocer el dataset** (Ej1): identificar variables protegidas, proxies, sesgos en los datos
+2. **Construir el baseline** (Ej2): evaluar performance y entender el tipo de error más costoso
+3. **Auditar equidad** (Ej3): medir fairness con criterios formales
+4. **Mitigar** (Ej4): aplicar técnicas de pre y post-procesamiento
+5. **Comparar y reflexionar** (Ej5): evaluar trade-offs y entender las implicaciones
+
+Este pipeline es aplicable a cualquier sistema de ML en producción y debería ser parte estándar del desarrollo responsable de IA.
