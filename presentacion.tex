@@ -1,0 +1,572 @@
+% ==============================================================================
+% PRESENTACIÓN: Equidad en Aprendizaje Automático — Bank Marketing
+% Compilar con: pdflatex presentacion.tex (2 veces para TOC)
+% ==============================================================================
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+% --- TEMA Y COLORES ---
+\usetheme{default}
+\useinnertheme{rounded}
+\useoutertheme{miniframes}
+
+% Paleta: grayscale + acento azul oscuro
+\definecolor{azuloscuro}{HTML}{1A3A5C}
+\definecolor{azulmedio}{HTML}{2E6DA4}
+\definecolor{azulclaro}{HTML}{87B7DB}
+\definecolor{gris90}{HTML}{1A1A1A}
+\definecolor{gris70}{HTML}{4D4D4D}
+\definecolor{gris50}{HTML}{808080}
+\definecolor{gris30}{HTML}{B3B3B3}
+\definecolor{gris10}{HTML}{E6E6E6}
+\definecolor{fondoslide}{HTML}{F5F5F5}
+\definecolor{cardcolor}{HTML}{FFFFFF}
+
+\setbeamercolor{palette primary}{bg=azuloscuro, fg=white}
+\setbeamercolor{palette secondary}{bg=azulmedio, fg=white}
+\setbeamercolor{palette tertiary}{bg=gris70, fg=white}
+\setbeamercolor{structure}{fg=azuloscuro}
+\setbeamercolor{title}{fg=white, bg=azuloscuro}
+\setbeamercolor{frametitle}{fg=azuloscuro, bg=gris10}
+\setbeamercolor{background canvas}{bg=fondoslide}
+\setbeamercolor{block title}{bg=azuloscuro, fg=white}
+\setbeamercolor{block body}{bg=cardcolor, fg=gris90}
+\setbeamercolor{block title alerted}{bg=azulmedio, fg=white}
+\setbeamercolor{block body alerted}{bg=cardcolor, fg=gris70}
+\setbeamercolor{itemize item}{fg=azuloscuro}
+\setbeamercolor{itemize subitem}{fg=azulmedio}
+\setbeamercolor{normal text}{fg=gris90}
+\setbeamercolor{footline}{fg=gris50}
+
+% Puntas redondeadas
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill\insertframenumber/\inserttotalframenumber\hspace*{6pt}\vspace{4pt}%
+}
+
+% --- TIPOGRAFÍA ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- PAQUETES GRÁFICOS ---
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, shadows.blur}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fontawesome5}
+
+% --- METADATOS ---
+\title[Equidad en ML]{Equidad en Aprendizaje Automático}
+\subtitle{Trabajo Práctico — Bank Marketing Dataset}
+\author{Grupo TP}
+\date{1er Cuatrimestre 2026}
+\institute{Equidad en Aprendizaje Automático}
+
+% ==============================================================================
+\begin{document}
+
+% ---- PORTADA ----
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\Huge\bfseries Equidad en\\Aprendizaje Automático}\\[12pt]
+{\color{azulclaro}\large Trabajo Práctico — Bank Marketing Dataset}\\[24pt]
+{\color{gris30}\normalsize 1er Cuatrimestre 2026}\\[6pt]
+\end{center}
+\vfill
+\end{frame}
+}
+
+% ---- ÍNDICE ----
+\begin{frame}{Hoja de ruta}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{\faSearch\quad Exploración}
+\begin{itemize}
+\item[\textbf{Ej1}] Conocer el dataset
+\item[\textbf{Ej2}] Modelo baseline
+\end{itemize}
+\end{block}
+\vspace{4pt}
+\begin{block}{\faBalanceScale\quad Auditoría}
+\begin{itemize}
+\item[\textbf{Ej3}] Criterios de fairness
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{\faWrench\quad Mitigación}
+\begin{itemize}
+\item[\textbf{Ej4}] Técnicas de corrección
+\end{itemize}
+\end{block}
+\vspace{4pt}
+\begin{block}{\faChartBar\quad Evaluación}
+\begin{itemize}
+\item[\textbf{Ej5}] Comparación y reflexión
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ==============================================================================
+% EJERCICIO 1
+% ==============================================================================
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Ejercicio 1}\\[8pt]
+{\color{azulclaro}\large Conocer el dataset}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\begin{frame}{El dataset: Bank Marketing}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\begin{block}{Ficha técnica}
+\begin{itemize}
+\item \textbf{Fuente:} UCI ML Repository
+\item \textbf{Registros:} 41.188 contactos telefónicos
+\item \textbf{Features:} 20 + target (\texttt{y})
+\item \textbf{Target:} ¿Suscripción a plazo fijo?
+\item \textbf{Periodo:} 2008--2013 (Portugal)
+\end{itemize}
+\end{block}
+\vspace{4pt}
+\begin{alertblock}{Variables protegidas}
+\begin{itemize}
+\item \textbf{Estado civil} (\texttt{marital})
+\item \textbf{Edad} (\texttt{age})
+\item \textbf{Género} → sin variable directa, usamos \texttt{job} como proxy
+\end{itemize}
+\end{alertblock}
+\end{column}
+\begin{column}{0.42\textwidth}
+\begin{block}{Autores}
+Moro, Cortez \& Rita (2014). Datos de un banco portugués bajo confidencialidad.
+\end{block}
+\vspace{4pt}
+\begin{block}{\faExclamationTriangle\quad Data leakage}
+La variable \texttt{duration} (duración de la llamada) se conoce \emph{después} del hecho. Los propios autores advierten excluirla para modelos predictivos reales.\\[4pt]
+\textbf{→ La excluimos desde el inicio.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Sesgos identificados en los datos}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{\faChartPie\quad Desbalanceo de clases}
+\begin{itemize}
+\item \textasciitilde89\% de los contactos → \texttt{no}
+\item Solo \textasciitilde11\% → \texttt{yes}
+\item El modelo puede ``aprender'' a decir no siempre
+\end{itemize}
+\end{block}
+\vspace{4pt}
+\begin{block}{\faUsers\quad Estado civil}
+\begin{itemize}
+\item \texttt{married}: \textasciitilde60\% (sobrerep.)
+\item \texttt{single}: \textasciitilde28\%
+\item \texttt{divorced}: \textasciitilde11\% (subrep.)
+\item \texttt{single} muestra señal positiva
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{\faBirthdayCake\quad Edad}
+\begin{itemize}
+\item Jóvenes y jubilados subrepresentados
+\item Jubilados tienen la tasa de \texttt{yes} \textbf{más alta} (\textasciitilde27\%)
+\item Pero pocos datos → modelo los ignora
+\item \textbf{Paradoja de la tasa base}
+\end{itemize}
+\end{block}
+\vspace{4pt}
+\begin{block}{\faBriefcase\quad Job como proxy de género}
+\begin{itemize}
+\item \texttt{housemaid}, \texttt{admin.} → históricamente femeninos
+\item Sin variable género directa
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ==============================================================================
+% EJERCICIO 2
+% ==============================================================================
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Ejercicio 2}\\[8pt]
+{\color{azulclaro}\large Modelo baseline}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\begin{frame}{Modelo: Random Forest}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Pipeline}
+\begin{enumerate}
+\item Eliminar \texttt{duration} (data leakage)
+\item Filtrar \texttt{marital = unknown} (80 reg.)
+\item Codificar categóricas (LabelEncoder)
+\item Split estratificado 80/20
+\item Random Forest (100 estimadores)
+\end{enumerate}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Resultados globales}
+\begin{center}
+\begin{tabular}{l r}
+\toprule
+\textbf{Métrica} & \textbf{Valor} \\
+\midrule
+\rowcolor{gris10} Accuracy & 90\% \\
+Precision (yes) & 60\% \\
+\rowcolor{gris10} \textbf{Recall (yes)} & \textbf{30\%} \\
+F1 (yes) & 40\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{4pt}
+{\small\color{gris50} Accuracy engañoso por desbalanceo.\\
+Recall bajo = muchos FN}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{¿Cuál error es peor?}
+\begin{center}
+\begin{tikzpicture}[
+  card/.style={rounded corners=8pt, draw=gris30, fill=cardcolor, 
+    minimum width=6.5cm, minimum height=2.2cm, align=center,
+    blur shadow={shadow blur steps=5, shadow xshift=1pt, shadow yshift=-1pt}},
+]
+\node[card] (fn) at (0,0) {
+  \textbf{\large\color{azuloscuro} Falso Negativo (FN)}\\[4pt]
+  {\small Cliente que se suscribiría}\\
+  {\small pero el modelo dice ``no'' → \textbf{NO lo llamamos}}
+};
+\node[card] (fp) at (8.5,0) {
+  \textbf{\large\color{gris50} Falso Positivo (FP)}\\[4pt]
+  {\small Cliente que no se suscribiría}\\
+  {\small pero el modelo dice ``sí'' → una llamada extra}
+};
+\node[below=0.4cm of fn, text=azuloscuro, font=\bfseries] {PEOR: pérdida de negocio};
+\node[below=0.4cm of fp, text=gris50] {Costo marginal bajo};
+\end{tikzpicture}
+\end{center}
+\vspace{6pt}
+\begin{block}{Justificación}
+\begin{itemize}
+\item El \textbf{FN} pierde directamente un depósito y un cliente potencial
+\item El \textbf{FP} cuesta solo una llamada telefónica adicional
+\item Objetivo del banco: \emph{incrementar suscripciones} → priorizar Recall
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ==============================================================================
+% EJERCICIO 3
+% ==============================================================================
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Ejercicio 3}\\[8pt]
+{\color{azulclaro}\large Auditoría de fairness}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\begin{frame}{Criterios de fairness — en contexto}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Statistical Parity}
+Igual \textbf{proporción de predicciones positivas} entre grupos, independientemente del resultado real.
+\end{block}
+\vspace{4pt}
+\begin{block}{Equal Opportunity}
+Igual \textbf{Recall (TPR)} entre grupos. Detectar suscriptores igual de bien para todos.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Equalized Odds}
+Igual \textbf{TPR + FPR} entre grupos. Más exigente: equidad tanto en aciertos como en falsas alarmas.
+\end{block}
+\vspace{4pt}
+\begin{block}{Predictive Parity}
+Igual \textbf{Precision} entre grupos. La confianza de cada predicción positiva es la misma.
+\end{block}
+\end{column}
+\end{columns}
+\vspace{8pt}
+\begin{alertblock}{\faExclamationCircle\quad Resultado teórico clave (Chouldechova, 2017)}
+Cuando las tasas base difieren entre grupos, es \textbf{imposible} satisfacer los tres criterios simultáneamente. \textbf{Debemos elegir uno.}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Fairness del modelo base — proxy de género (\texttt{job})}
+\begin{center}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Métrica} & \textbf{Hist. femenino} & \textbf{Hist. masc./otro} & \textbf{Disparidad} \\
+\midrule
+\rowcolor{gris10} Statistical Parity & 0.055 & 0.053 & 0.002 \\
+\textbf{Equal Opportunity (TPR)} & \textbf{0.315} & \textbf{0.296} & \textbf{0.019} \\
+\rowcolor{gris10} FPR (Eq. Odds) & 0.026 & 0.025 & 0.001 \\
+Predictive Parity (Prec.) & 0.648 & 0.583 & 0.065 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{6pt}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Umbral elegido: 0.10}
+Disparidades $< 0.10$ → modelo es \textbf{fair}.\\
+Todas las disparidades están por debajo → el modelo base ya es equitativo para este proxy.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{alertblock}{Criterio elegido: Equal Opportunity}
+Coherente con Ej2: si FN es el error más costoso, queremos que el \textbf{Recall} sea igual entre grupos → no perder suscriptores de ningún grupo.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Fairness del modelo base — estado civil (\texttt{marital})}
+\begin{center}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Métrica} & \textbf{Married} & \textbf{Single} & \textbf{Divorced} & \textbf{Max Disp.} \\
+\midrule
+\rowcolor{gris10} TPR (Equal Opp.) & 0.274 & 0.348 & 0.294 & 0.075 \\
+FPR (Eq. Odds) & --- & --- & --- & 0.020 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{6pt}
+\begin{block}{Observación}
+\begin{itemize}
+\item Disparidad TPR = 0.075 → \textbf{por debajo del umbral 0.10}, pero más alta que en \texttt{job}
+\item \texttt{single} tiene el TPR más alto (más jóvenes, señal positiva)
+\item \texttt{married} tiene el TPR más bajo (grupo mayoritario, comportamiento conservador)
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ==============================================================================
+% EJERCICIO 4
+% ==============================================================================
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Ejercicio 4}\\[8pt]
+{\color{azulclaro}\large Mitigación de sesgos}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\begin{frame}{Técnicas de mitigación aplicadas}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{\faBalanceScale\quad Reweighting (Pre-processing)}
+\begin{itemize}
+\item Asigna \textbf{pesos} a las muestras de entrenamiento
+\item Compensa sub-representación de grupos
+\item Actúa \emph{antes} de entrenar el modelo
+\item El modelo aprende ``dando más importancia'' a los grupos rezagados
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{\faSlidersH\quad Threshold Adjustment (Post-processing)}
+\begin{itemize}
+\item Ajusta el \textbf{umbral de decisión por grupo}
+\item Iguala directamente el TPR (Equal Opportunity)
+\item Actúa \emph{después} de entrenar el modelo
+\item Más directo para el criterio elegido
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\vspace{8pt}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={rounded corners=6pt, minimum width=3cm, minimum height=1cm, 
+    align=center, font=\small\bfseries},
+  arr/.style={-{Stealth[length=6pt]}, thick, color=azulmedio}
+]
+\node[box, fill=gris10, draw=gris30] (data) at (0,0) {Datos};
+\node[box, fill=azulclaro!30, draw=azulmedio] (rw) at (3.5,0) {Reweighting};
+\node[box, fill=gris10, draw=gris30] (model) at (7,0) {Random Forest};
+\node[box, fill=azulclaro!30, draw=azulmedio] (ta) at (10.5,0) {Threshold Adj.};
+\node[box, fill=gris10, draw=gris30] (pred) at (14,0) {Predicción};
+\draw[arr] (data) -- (rw);
+\draw[arr] (rw) -- (model);
+\draw[arr] (model) -- (ta);
+\draw[arr] (ta) -- (pred);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+% ==============================================================================
+% EJERCICIO 5
+% ==============================================================================
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Ejercicio 5}\\[8pt]
+{\color{azulclaro}\large Comparación y reflexión}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\begin{frame}{Comparación de modelos — Performance global}
+\begin{center}
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Modelo} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+\midrule
+\rowcolor{gris10} Original & 0.899 & 0.603 & 0.302 & 0.403 \\
+Reweighting & 0.897 & 0.593 & 0.283 & 0.383 \\
+\rowcolor{gris10} Threshold Adj. & 0.897 & 0.583 & \textbf{0.316} & \textbf{0.410} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{6pt}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Observación}
+\begin{itemize}
+\item Accuracy casi constante (\textasciitilde90\%)
+\item Threshold Adj. mejora Recall (+1.4pp) y F1
+\item Reweighting pierde Recall → no funciona tan bien aquí
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{alertblock}{Trade-off}
+Pequeña pérdida en Precision a cambio de mayor Recall.\\[4pt]
+\textbf{Para el banco:} algunas llamadas extra (FP) pero más suscriptores captados (menos FN).
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Comparación de fairness — Equal Opportunity}
+\begin{center}
+\textbf{Proxy de género (\texttt{job})}\\[4pt]
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Modelo} & \textbf{TPR fem.} & \textbf{TPR masc.} & \textbf{Disp. TPR} \\
+\midrule
+\rowcolor{gris10} Original & 0.315 & 0.296 & 0.019 \\
+Reweighting & 0.315 & 0.293 & 0.022 \\
+\rowcolor{gris10} Threshold Adj. & 0.348 & 0.302 & 0.046 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{8pt}
+\begin{center}
+\textbf{Estado civil (\texttt{marital})}\\[4pt]
+\begin{tabular}{l c c c c}
+\toprule
+\textbf{Modelo} & \textbf{Married} & \textbf{Single} & \textbf{Divorced} & \textbf{Max Disp.} \\
+\midrule
+\rowcolor{gris10} Original & 0.274 & 0.348 & 0.294 & 0.075 \\
+Reweighting & 0.244 & 0.345 & 0.271 & 0.101 \\
+\rowcolor{gris10} Threshold Adj. & 0.344 & 0.345 & 0.365 & \textbf{0.020} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{4pt}
+{\small Threshold Adj. reduce la disparidad de \textbf{0.075 → 0.020} para \texttt{marital}. Gran mejora.}
+\end{frame}
+
+\begin{frame}{Reflexión: impacto en el mundo real}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{\faUniversity\quad Acceso equitativo}
+Sin mitigación, ciertos grupos quedan excluidos de ofertas financieras. El modelo perpetúa sesgos históricos.
+\end{block}
+\vspace{4pt}
+\begin{block}{\faGavel\quad Regulación}
+La discriminación por género, edad o estado civil en servicios financieros es ilegal en la mayoría de jurisdicciones.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{\faCogs\quad Trade-off consciente}
+No existe modelo justo Y perfecto. La elección del criterio de fairness es una decisión de \emph{política}, no solo técnica.
+\end{block}
+\vspace{4pt}
+\begin{block}{\faExclamationTriangle\quad Limitaciones}
+\texttt{job} como proxy de género es una aproximación. No todas las personas en \texttt{admin.} son mujeres. Datos demográficos reales mejorarían la auditoría.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ---- CIERRE ----
+{
+\setbeamercolor{background canvas}{bg=azuloscuro}
+\begin{frame}[plain]
+\vfill
+\begin{center}
+{\color{white}\LARGE\bfseries Conclusión}\\[12pt]
+\begin{tikzpicture}[
+  step/.style={rounded corners=6pt, minimum width=2.2cm, minimum height=0.9cm,
+    align=center, font=\small\bfseries, fill=azulmedio, text=white},
+  arr/.style={-{Stealth[length=5pt]}, thick, color=azulclaro}
+]
+\node[step] (e1) at (0,0) {Ej1\\Datos};
+\node[step] (e2) at (3,0) {Ej2\\Baseline};
+\node[step] (e3) at (6,0) {Ej3\\Auditoría};
+\node[step] (e4) at (9,0) {Ej4\\Mitigación};
+\node[step] (e5) at (12,0) {Ej5\\Evaluación};
+\draw[arr] (e1) -- (e2);
+\draw[arr] (e2) -- (e3);
+\draw[arr] (e3) -- (e4);
+\draw[arr] (e4) -- (e5);
+\end{tikzpicture}
+\vspace{16pt}
+
+{\color{azulclaro}\large Pipeline completo de auditoría y mitigación de sesgos\\[6pt]
+aplicable a cualquier sistema de ML en producción.}
+\end{center}
+\vfill
+\end{frame}
+}
+
+\end{document}
