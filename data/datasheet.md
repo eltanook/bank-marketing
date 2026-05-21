@@ -2,8 +2,8 @@
 
 ## Source
 - **Origin**: [UCI Machine Learning Repository - Bank Marketing](https://archive.ics.uci.edu/dataset/222/bank+marketing)
-- **Version**: Bank Additional Full (`bank-additional-full.csv`)
-- **Size**: 41,188 instances, 20 features + target.
+- **Version**: Bank Full (`bank-full.csv`)
+- **Size**: 45,211 instances, 16 features + target.
 
 ## Variables
 | Variable | Type | Description |
