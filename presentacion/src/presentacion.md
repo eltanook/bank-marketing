@@ -2,6 +2,7 @@
 marp: true
 theme: custom
 paginate: true
+math: mathjax
 header: "![w:150](../assets/Logo_UNSAM.png)"
 style: |
   section {
@@ -24,6 +25,19 @@ style: |
     background: transparent !important;
     border-radius: 0 !important;
   }
+  
+  /* Ocultar page control a los 4s sin hover */
+  .bespoke-marp-osc {
+    opacity: 0 !important;
+    transition: opacity 0.5s ease-in-out 4s !important;
+    pointer-events: none; /* Evita que el OSC invisible intercepte clics */
+  }
+  .bespoke-marp-parent:hover .bespoke-marp-osc {
+    opacity: 1 !important;
+    transition-delay: 0s !important;
+    pointer-events: auto;
+  }
+  
   h1, h2, h3 {
     color: #0047AB;
     margin-bottom: 0.4em;
