@@ -264,19 +264,16 @@ Como el **Falso Negativo** es el error más costoso, exigimos que la **Tasa de V
 
 Evaluación matemática de la disparidad antes de intervenir.
 
-<div class="columns">
-<div class="column">
-<div class="card">
+<div class="card" style="margin-bottom: 20px;">
 
 Utilizando el módulo de la diferencia como medida de disparidad:
 - Se observa que el modelo original viola fuertemente la Igualdad de Oportunidades.
 - La diferencia de TPR entre el grupo privilegiado y desfavorecido excede el umbral de tolerancia ética aceptable.
 
 </div>
-</div>
-<div class="column">
-  <img src="../assets/ej3_img1.png" alt="Criterios Cuantitativos">
-</div>
+
+<div class="center">
+  <img src="../assets/ej3_img1.png" alt="Criterios Cuantitativos" style="max-height: 340px; width: auto;">
 </div>
 
 ---
