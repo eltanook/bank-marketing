@@ -9,7 +9,8 @@ style: |
     background-color: #F0F8FF;
     color: #002244;
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    padding: 50px 80px 50px 80px;
+    padding: 60px 80px 80px 80px;
+    font-size: 27px; /* Reducción ligera para dar más respiro */
   }
   header {
     position: absolute;
@@ -54,7 +55,7 @@ style: |
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px 20px;
     box-shadow: 0 8px 32px 0 rgba(0, 34, 68, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.5);
   }
@@ -64,6 +65,8 @@ style: |
   
   img {
     max-width: 100%;
+    max-height: 380px;
+    object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,34,68,0.1);
   }
@@ -267,8 +270,8 @@ Evaluación matemática de la disparidad antes de intervenir.
 <div class="card" style="margin-bottom: 20px;">
 
 Utilizando el módulo de la diferencia como medida de disparidad:
-- Se observa que el modelo original viola fuertemente la Igualdad de Oportunidades.
-- La diferencia de TPR entre el grupo privilegiado y desfavorecido excede el umbral de tolerancia ética aceptable.
+- **Hallazgo inesperado:** El modelo original (Baseline) resulta ser muy equitativo, cumpliendo con holgura todas las métricas usando un umbral estándar de 0.1.
+- Solo al someter al modelo a **pruebas de estrés con umbrales estrictos** (0.05, 0.03, 0.01) detectamos sensibilidad y leves disparidades en la Igualdad de Oportunidades.
 
 </div>
 
@@ -288,7 +291,7 @@ Utilizando el módulo de la diferencia como medida de disparidad:
 
 - **No altera los datos**, solo modifica su distribución de peso interno.
 - Evita que el modelo penalice a grupos minoritarios durante el aprendizaje.
-- *Resultado Empírico*: Mejora leve, pero insuficiente ante los sesgos estructurales profundos de este dataset bancario.
+- *Resultado Empírico*: Como el modelo base ya era equitativo, aplicar este pre-procesamiento generó fluctuaciones menores, degradando levemente algunas métricas en el set de prueba.
 
 </div>
 </div>
@@ -307,9 +310,9 @@ Utilizando el módulo de la diferencia como medida de disparidad:
 <div class="column">
 <div class="card">
 
-- Intervención directa y potente sobre el resultado final emitido.
-- **Garantiza la Igualdad de Oportunidades** forzando los ratios.
-- *Costo*: Impacta de forma visible y directa en el "Accuracy" global del modelo.
+- Intervención directa y potente sobre las predicciones emitidas.
+- **¿Qué ocurrió aquí?**: Aplicar este mitigador estricto sobre un modelo que *ya era justo* terminó **empeorando** la equidad (aumentó la diferencia de TPR).
+- *Conclusión*: Forzar la igualdad matemática alterando (haciendo "flip" a) predicciones de un modelo balanceado introduce ruido y degrada los resultados.
 
 </div>
 </div>
@@ -324,30 +327,31 @@ Utilizando el módulo de la diferencia como medida de disparidad:
 
 <div class="card">
 
-Al aplicar las técnicas utilizando la librería **Holistic AI**, observamos la siguiente progresión empírica:
+Al aplicar las técnicas utilizando la librería **Holistic AI**, observamos los siguientes resultados en las métricas de disparidad:
 
-| Modelo | Accuracy Global | TPR Difference (Sesgo) | Cumple Equal Opportunity? |
+| Modelo | TPR Difference | Disparate Impact | Evaluación de Equidad |
 |:---|:---:|:---:|:---:|
-| **Random Forest Base** | ~ 90.0% | Alto | ❌ No |
-| **RF + Reweighing** | ~ 89.8% | Medio-Alto | ❌ No (Mejora marginal) |
-| **RF + Equalized Odds** | ~ 87.5% | Cercano a 0 | ✅ Sí |
+| **Random Forest Base** | **0.0039** | **1.020** | ✅ **Muy Justo** |
+| **RF + Reweighing** | 0.0179 | 0.972 | ✅ Justo (leve ruido) |
+| **RF + Equalized Odds** | 0.0673 | 1.254 | ❌ **Empeora la equidad** |
 
-*(Nota: Valores representativos para ilustrar la tendencia del trade-off observado).*
+*(Nota: El baseline resultó ser el mejor modelo. Aplicar mitigadores por defecto puede ser contraproducente).*
 
 </div>
 
 ---
 
-## 11. Fairness vs. Performance
+## 11. Lecciones sobre la Mitigación
 
-El trade-off matemático es inevitable: Mitigar sesgos profundos conlleva un costo en el rendimiento general.
+Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en la práctica:
 
 <div class="columns">
 <div class="column">
 <div class="card">
 
-- Igualar oportunidades obliga al modelo a cometer errores "intencionales" desde la perspectiva de la exactitud pura.
-- **Decisión del Negocio:** ¿Cuánto *Accuracy* estamos dispuestos a sacrificar en la campaña para garantizar un trato justo a todos los clientes?
+- **No asumas el sesgo, mídelo**: El modelo base resultó ser altamente equitativo de forma natural.
+- **Más mitigación no siempre es mejor**: Intervenir agresivamente con algoritmos de *post-processing* terminó añadiendo ruido y empeorando las métricas de sesgo.
+- **Pruebas de estrés**: Un umbral estándar (0.1) puede ser muy permisivo; es clave analizar la robustez con umbrales más estrictos (0.01).
 
 </div>
 </div>
