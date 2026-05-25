@@ -1,7 +1,7 @@
 # Informe Final: Equidad en Aprendizaje Automático
 **Trabajo Práctico Integrador**
 **Conjunto de Datos:** Bank Marketing
-**Integrantes:** Tomás ..., Alejandro ..., Matías ...
+**Integrantes:** Tomás ..., Alejandro ..., Matías Bacalhau
 
 ---
 
@@ -62,28 +62,32 @@ Es decir, nuestro modelo identificaba casi perfectamente a los que iban a rechaz
 En el diseño de sistemas de decisión, debatimos extensamente que no todos los errores nos cuestan lo mismo. Asumiendo que nosotros somos la junta estratégica del banco, determinamos mediante consenso grupal que **el Falso Negativo (FN) es indiscutiblemente nuestro error más costoso e inaceptable**. 
 
 1. **Pérdida Comercial Irrecuperable:** Si nuestro modelo arroja un Falso Negativo, significa que predice "no interesado" cuando el cliente en realidad sí lo estaba. Si nosotros no lo llamamos, perdemos la captación del depósito a manos de otro banco competidor.
-2. **Asimetría del Costo Operativo:** Equivocarnos arrojando un Falso Positivo solo significa que le hacemos una llamada inútil a alguien que terminará rechazando. El costo de esto es marginal (el salario por dos minutos de nuestro operador del centro de llamadas). Perder un inversor nos sale exponencialmente más caro.
+2. **Asimetría del Costo Operativo:** Equivocarnos arrojando un Falso Positivo solo significa que le hacemos una llamada inútil a alguien que terminará rechazando. El costo de esto es marginal (el salario por dos minutos de nuestro operador del centro de llamadas), aún más comparador con perder un inversor.
 
-Llegamos a la conclusión unánime de que cualquier política de equidad que aplicáramos debía enfocarse en capturar la mayor cantidad posible de Verdaderos Positivos sin segregar a nadie (maximizar el *Recall* equitativamente).
+Llegamos a la conclusión unánime de que cualquier política de equidad que aplicáramos debía enfocarse en equiparar los Verdaderos Positivos de los grupos identificados, es decir maximizar el *Recall* equitativamente.
 
 ## 4. Análisis de Equidad Algorítmica (Ejercicio 3)
 
-Basándonos en la teoría dictada en clase y en investigadoras pioneras, nosotros definimos cómo se aplicaban los criterios a nuestro problema de negocio bancario:
+Basándonos en la teoría dictada en clase y en investigaciones pioneras, nosotros definimos cómo se aplicaban los criterios a nuestro problema de negocio bancario:
 
 *   **Statistical Parity (Paridad Estadística):** Requeriría que llamemos a la misma proporción de mujeres inferidas que de hombres inferidos, independientemente de si realmente se iban a suscribir o no.
 *   **Equal Opportunity (Igualdad de Oportunidades - TPR):** Exige que, *exclusivamente entre los clientes que nosotros sabemos que sí se iban a suscribir*, nuestro modelo los encuentre con la misma eficacia estadística (Tasa de Verdaderos Positivos) sin importar si ocupan empleos feminizados o no. 
 *   **Equalized Odds (Igualdad de Probabilidades):** Exige que igualemos tanto nuestra Tasa de Verdaderos Positivos (TPR) como nuestra Tasa de Falsos Positivos (FPR) a través de todos los grupos.
 *   **Predictive Parity (Paridad Predictiva):** Exige que la confiabilidad (Precisión) de nuestras predicciones positivas sea igual para ambos bandos.
 
-Nosotros consideramos un teorema fundamental de la equidad en Machine Learning (Chouldechova, 2017; Kleinberg, Mullainathan, & Raghavan, 2016): cuando las tasas base (la proporción real de clientes que suscriben) difieren entre grupos, **es matemáticamente imposible satisfacer simultáneamente todos los criterios de equidad**. Nos vimos obligados a elegir.
+Nosotros consideramos un teorema fundamental de la equidad en Machine Learning (Chouldechova, 2017; Kleinberg, Mullainathan, & Raghavan, 2016): cuando las tasas base (la proporción real de clientes que suscriben) difieren entre grupos, **es matemáticamente imposible satisfacer simultáneamente todos los criterios de equidad**, por lo que nos vimos obligados a elegir.
 
-Nosotros decidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Al querer minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
+A su vez, decidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Al querer minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
 
 Al medir esto sobre nuestro Random Forest inicial con una estricta tolerancia del 10% (umbral de disparidad del 0.1), **nos sorprendimos gratamente al descubrir que nuestro modelo ya era equitativo (*Fair*)**. 
 
 [<Insertar output de consola: Métricas de Fairness por grupo y disparidades calculadas (Statistical Parity y Equal Opportunity TPR) con umbral 0.1 aquí>]
 
-La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femeninos fue del 18.49% y para el resto del 20.50%. Esto demostró empíricamente que nuestro Random Forest, en su forma nativa, no discriminaba a las ocupaciones feminizadas a la hora de acertar con los suscriptores.
+La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femeninos fue del 18.49% y para el resto del 20.50%. Esto demostró empíricamente que nuestro Random Forest, en su forma nativa, o bien no discriminaba a las ocupaciones feminizadas a la hora de acertar con los suscriptores.
+
+Alternativa: 
+
+    La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femenizados fue del 18.49% y para el resto del 20.50%. Esto nos plantea 3 escenarios: a) Nuestro Modelo en su forma original no está sesgado; no existe un sesgo histórico por el género en relación a nuestro problema; o  **Job** tal como lo construímos es un proxy débil para género
 
 ## 5. Técnicas de Mitigación de Sesgos (Ejercicio 4)
 
