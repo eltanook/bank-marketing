@@ -18,7 +18,7 @@ El análisis se fundamenta en el **Bank Marketing Dataset** proveniente del repo
 Construimos un modelo base de clasificación para predecir si un cliente suscribirá (`yes`) o no (`no`) al depósito.
 * **Algoritmo elegido:** Random Forest.
 * **Prevención de Data Leakage:** Eliminamos la variable `duration` del entrenamiento, ya que la duración exacta de una llamada solo se conoce una vez que esta ha finalizado (momento en el que también se conoce el resultado).
-* **Decisión de Negocio:** Nos situamos en la perspectiva del banco, cuyo objetivo es aumentar la tasa de suscripciones. Concluimos que **el error más perjudicial es el Falso Negativo (FN)**, ya que omitir llamar a un cliente que habría aceptado la oferta resulta en una pérdida de negocio irrecuperable, mientras que el costo de un Falso Positivo (una llamada inútil) es marginal.
+* **Decisión de Negocio:** Nos situamos en la perspectiva del banco, cuyo objetivo es aumentar la tasa de suscripciones. Concluimos que **el error más perjudicial es el Falso Negativo (FN)**, ya que omitir llamar a un cliente que habría aceptado la oferta resulta en una pérdida de negocio irrecuperable, mientras que el costo de un Falso Positivo (una llamada inútil) es marginal. Obtuvimos un Accuracy global altísimo (89%) pero un Recall pobrísimo (20%) para la clase minoritaria.
 
 ---
 
@@ -26,25 +26,24 @@ Construimos un modelo base de clasificación para predecir si un cliente suscrib
 
 Se definió el marco teórico y matemático para medir la justicia de nuestro modelo usando el proxy `job`.
 * **Criterio seleccionado:** Alineado a nuestra prioridad de minimizar los Falsos Negativos sin discriminar entre grupos demográficos, elegimos **Equal Opportunity (TPR)** como el criterio más relevante. Esto asegura que el banco sea igual de efectivo identificando suscriptores interesados en trabajos históricamente femeninos que en el resto.
-* **Evaluación Inicial:** Al analizar el modelo base con un umbral de disparidad del 0.1, verificamos que el modelo ya se comportaba de manera equitativa (*Fair*) en la mayoría de sus métricas, incluyendo la Igualdad de Oportunidades.
+* **Evaluación Inicial:** Al analizar el modelo base con un umbral de disparidad del 0.1, verificamos empíricamente que el modelo ya se comportaba de manera equitativa (*Fair*), presentando una brecha de apenas un 2% en TPR.
 
 ---
 
-## 4. Mitigación de Sesgos (Ejercicio 4)
+## 4. Mitigación de Sesgos y Ajuste de Umbral (Ejercicio 4)
 
-Para garantizar la equidad y observar el efecto de la intervención algorítmica, implementamos rutinas de mitigación utilizando la librería profesional **Holistic AI**:
-1. **Pre-processing (Reweighing):** Asignamos distintos pesos a las instancias de entrenamiento para balancear la representación y probabilidad cruzada de las clases frente a nuestro proxy de género.
-2. **Post-processing (Equalized Odds):** Ajustamos los umbrales de decisión post-predicción, recurriendo a algoritmos de programación lineal para minimizar la diferencia en las tasas de verdaderos y falsos positivos de los grupos.
+A pesar de tener un modelo equitativo, el problema del bajo Recall (20%) persistía. Exploramos distintas técnicas:
+1. **Pre-processing (Reweighing):** Asignamos distintos pesos a las instancias de entrenamiento. Inesperadamente, esta técnica degradó ligeramente la TPR del grupo femenino (bajó a 15.75%), rompiendo la Igualdad de Oportunidades.
+2. **Post-processing (Equalized Odds):** Los optimizadores matemáticos tampoco lograron mejorar el balance, demostrando que aplicar librerías correctivas a ciegas sobre un modelo inherentemente justo no soluciona problemas intrínsecos de clasificación.
+3. **Logit Tuning (Ajuste Manual de Umbral):** Nuestra solución óptima fue bajar el umbral de decisión a **0.30**. Con esto logramos duplicar los Verdaderos Positivos sin quebrar en ningún momento la equidad distributiva inicial.
 
 ---
 
-## 5. Comparación y Reflexión Final (Ejercicio 5)
+## 5. Generalización a Nuevas Variables (Ejercicio 5)
 
-La comparativa entre el modelo base y los modelos mitigados demuestra que **es posible garantizar la equidad algorítmica sin un costo significativo en la performance del modelo**.
-
-* Ambas intervenciones mantuvieron el Accuracy y el F1-Score originales.
-* El pre-procesamiento (*Reweighing*) logró reducir aún más la leve disparidad pre-existente en el *True Positive Rate* (TPR), solidificando la Igualdad de Oportunidades.
-* **Reflexión:** En aplicaciones financieras del mundo real, integrar estos controles no solo mitiga el riesgo ético, reputacional y legal por discriminación, sino que demuestra que los objetivos comerciales (captar clientes) pueden alinearse armónicamente con políticas de equidad social si el modelado es riguroso e intencionado.
+Para probar la escalabilidad de nuestra arquitectura y análisis, replicamos los cálculos evaluando la variable **`education`** (nivel educativo).
+* El pipeline demostró ser agnóstico a la variable protegida, permitiendo medir fácilmente las métricas para grupos con educación primaria, secundaria y terciaria.
+* **Reflexión Interseccional:** Se deja sentada la base para futuras auditorías de equidad que crucen estas dimensiones simultáneamente (ej. oficios feminizados + educación primaria), garantizando que las decisiones automatizadas no refuercen exclusiones históricas cruzadas.
 
 ---
 
