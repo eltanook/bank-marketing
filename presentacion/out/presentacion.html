@@ -208,8 +208,8 @@ section.preguntas h1 { color: white; border: none; font-size: 4em; }
 <h2>Análisis de Sesgos y Mitigación en Bank Marketing</h2>
 <div class="details">
   <p>Trabajo Práctico Integrador</p>
-  <p>1er Cuatrimestre 2026</p>
-  <p>Universidad Nacional de San Martín (UNSAM)</p>
+  <p><strong>Integrantes:</strong> Tomás Nadal, Alejandro Echeverri, Matías Bacalhau</p>
+  <p>1er Cuatrimestre 2026 | Universidad Nacional de San Martín (UNSAM)</p>
 </div>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="2" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
@@ -408,7 +408,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="1-el-dataset-bank-marketing">1. El Dataset: Bank Marketing</h2>
 <div class="card">
@@ -621,7 +621,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="2-datasheets-for-datasets-contexto">2. Datasheets for Datasets (Contexto)</h2>
 <div class="columns">
@@ -842,7 +842,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="3-sesgos-potenciales-iniciales">3. Sesgos Potenciales Iniciales</h2>
 <p>Existen fuertes desbalances estructurales en los datos:</p>
@@ -1062,7 +1062,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="4-clasificaci%C3%B3n-base-y-rendimiento-global">4. Clasificación Base y Rendimiento Global</h2>
 <p>Antes de analizar la equidad, entrenamos un modelo <strong>Random Forest Classifier</strong> estándar.</p>
@@ -1276,7 +1276,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="5-evaluaci%C3%B3n-inicial-job-como-proxy">5. Evaluación Inicial (<code>job</code> como proxy)</h2>
 <p>Evaluación del modelo base segmentando por ocupación (proxy de género).</p>
@@ -1490,7 +1490,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="6-conceptos-de-equidad-fairness">6. Conceptos de Equidad (Fairness)</h2>
 <div class="columns">
@@ -1710,7 +1710,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="7-an%C3%A1lisis-cuantitativo-de-sesgo-pre-mitigaci%C3%B3n">7. Análisis Cuantitativo de Sesgo (Pre-mitigación)</h2>
 <p>Evaluación matemática de la disparidad antes de intervenir.</p>
@@ -1921,7 +1921,7 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
 <h2 id="8-mitigaci%C3%B3n-reweighing-pre-procesamiento">8. Mitigación: Reweighing (Pre-procesamiento)</h2>
 <p><strong>Técnica:</strong> Asigna &quot;pesos&quot; a los datos de entrenamiento para balancear la importancia empírica de grupos desfavorecidos.</p>
@@ -2136,23 +2136,16 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
-<h2 id="9-mitigaci%C3%B3n-equalized-odds-post-procesamiento">9. Mitigación: Equalized Odds (Post-procesamiento)</h2>
-<p><strong>Técnica:</strong> Modifica los umbrales de decisión del modelo <em>después</em> de que fue entrenado, forzando matemáticamente la igualdad de TPR.</p>
-<div class="columns">
-<div class="column">
+<h2 id="9-enfoque-alternativo-ajuste-manual-de-umbral">9. Enfoque Alternativo: Ajuste Manual de Umbral</h2>
+<p>Antes de recurrir a un post-procesamiento complejo, evaluamos una intervención directa para priorizar la captación comercial (reducir Falsos Negativos).</p>
 <div class="card">
 <ul>
-<li>Intervención directa y potente sobre las predicciones emitidas.</li>
-<li><strong>¿Qué ocurrió aquí?</strong>: Aplicar este mitigador estricto sobre un modelo que <em>ya era justo</em> terminó <strong>empeorando</strong> la equidad (aumentó la diferencia de TPR).</li>
-<li><em>Conclusión</em>: Forzar la igualdad matemática alterando (haciendo &quot;flip&quot; a) predicciones de un modelo balanceado introduce ruido y degrada los resultados.</li>
+<li><strong>Técnica:</strong> Analizamos las métricas internas del Random Forest y bajamos el umbral de decisión para clasificar como &quot;Sí&quot; de <code>0.50</code> a <strong><code>0.30</code></strong>.</li>
+<li><strong>Resultado:</strong> Aumentamos drásticamente la cantidad de Verdaderos Positivos (mayor Recall o TPR).</li>
+<li><strong>Conclusión:</strong> A veces un ajuste empírico simple y guiado por el negocio es más transparente y efectivo que forzar restricciones matemáticas a ciegas en todo el pipeline.</li>
 </ul>
-</div>
-</div>
-<div class="column">
-  <img src="../assets/ej4_img2.png" alt="Resultados Equalized Odds" />
-</div>
 </div>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
@@ -2351,42 +2344,23 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
-<h2 id="10-resumen-num%C3%A9rico-comparativo">10. Resumen Numérico Comparativo</h2>
+<h2 id="10-mitigaci%C3%B3n-equalized-odds-post-procesamiento">10. Mitigación: Equalized Odds (Post-procesamiento)</h2>
+<p><strong>Técnica:</strong> Modifica los umbrales de decisión del modelo <em>después</em> de que fue entrenado, forzando matemáticamente la igualdad de TPR.</p>
+<div class="columns">
+<div class="column">
 <div class="card">
-<p>Al aplicar las técnicas utilizando la librería <strong>Holistic AI</strong>, observamos los siguientes resultados en las métricas de disparidad:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Modelo</th>
-<th style="text-align:center">TPR Difference</th>
-<th style="text-align:center">Disparate Impact</th>
-<th style="text-align:center">Evaluación de Equidad</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><strong>Random Forest Base</strong></td>
-<td style="text-align:center"><strong>0.0039</strong></td>
-<td style="text-align:center"><strong>1.020</strong></td>
-<td style="text-align:center"><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> <strong>Muy Justo</strong></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>RF + Reweighing</strong></td>
-<td style="text-align:center">0.0179</td>
-<td style="text-align:center">0.972</td>
-<td style="text-align:center"><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> Justo (leve ruido)</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>RF + Equalized Odds</strong></td>
-<td style="text-align:center">0.0673</td>
-<td style="text-align:center">1.254</td>
-<td style="text-align:center"><img class="emoji" draggable="false" alt="❌" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/274c.svg" data-marp-twemoji=""/> <strong>Empeora la equidad</strong></td>
-</tr>
-</tbody>
-</table>
-<p><em>(Nota: El baseline resultó ser el mejor modelo. Aplicar mitigadores por defecto puede ser contraproducente).</em></p>
+<ul>
+<li>Intervención directa y potente sobre las predicciones emitidas.</li>
+<li><strong>¿Qué ocurrió aquí?</strong>: Aplicar este mitigador estricto sobre un modelo que <em>ya era justo</em> terminó <strong>empeorando</strong> la equidad (aumentó la diferencia de TPR).</li>
+<li><em>Conclusión</em>: Forzar la igualdad matemática alterando (haciendo &quot;flip&quot; a) predicciones de un modelo balanceado introduce ruido y degrada los resultados.</li>
+</ul>
+</div>
+</div>
+<div class="column">
+  <img src="../assets/ej4_img2.png" alt="Resultados Equalized Odds" />
+</div>
 </div>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="12" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
@@ -2585,23 +2559,42 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
-<h2 id="11-lecciones-sobre-la-mitigaci%C3%B3n">11. Lecciones sobre la Mitigación</h2>
-<p>Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en la práctica:</p>
-<div class="columns">
-<div class="column">
+<h2 id="11-resumen-num%C3%A9rico-comparativo">11. Resumen Numérico Comparativo</h2>
 <div class="card">
-<ul>
-<li><strong>No asumas el sesgo, mídelo</strong>: El modelo base resultó ser altamente equitativo de forma natural.</li>
-<li><strong>Más mitigación no siempre es mejor</strong>: Intervenir agresivamente con algoritmos de <em>post-processing</em> terminó añadiendo ruido y empeorando las métricas de sesgo.</li>
-<li><strong>Pruebas de estrés</strong>: Un umbral estándar (0.1) puede ser muy permisivo; es clave analizar la robustez con umbrales más estrictos (0.01).</li>
-</ul>
-</div>
-</div>
-<div class="column">
-  <img src="../assets/ej5_img1.png" alt="Trade-off Plot" />
-</div>
+<p>Al aplicar las técnicas utilizando la librería <strong>Holistic AI</strong>, observamos los siguientes resultados en las métricas de disparidad:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Modelo</th>
+<th style="text-align:center">TPR Difference</th>
+<th style="text-align:center">Disparate Impact</th>
+<th style="text-align:center">Evaluación de Equidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Random Forest Base</strong></td>
+<td style="text-align:center"><strong>0.0039</strong></td>
+<td style="text-align:center"><strong>1.020</strong></td>
+<td style="text-align:center"><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> <strong>Muy Justo</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>RF + Reweighing</strong></td>
+<td style="text-align:center">0.0179</td>
+<td style="text-align:center">0.972</td>
+<td style="text-align:center"><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> Justo (leve ruido)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>RF + Equalized Odds</strong></td>
+<td style="text-align:center">0.0673</td>
+<td style="text-align:center">1.254</td>
+<td style="text-align:center"><img class="emoji" draggable="false" alt="❌" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/274c.svg" data-marp-twemoji=""/> <strong>Empeora la equidad</strong></td>
+</tr>
+</tbody>
+</table>
+<p><em>(Nota: El baseline resultó ser el mejor modelo. Aplicar mitigadores por defecto puede ser contraproducente).</em></p>
 </div>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="13" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
@@ -2800,9 +2793,432 @@ section.preguntas {
   justify-content: center;
 }
 section.preguntas h1 { color: white; border: none; font-size: 4em; }
-;" data-marpit-pagination-total="14">
+;" data-marpit-pagination-total="16">
 <header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
-<h2 id="12-reflexi%C3%B3n-en-el-mundo-real">12. Reflexión en el Mundo Real</h2>
+<h2 id="12-extrapolaci%C3%B3n-nivel-educativo-ej-5">12. Extrapolación: Nivel Educativo (Ej 5)</h2>
+<p>Para validar la robustez de la metodología, replicamos el análisis de equidad utilizando la variable <strong><code>education</code></strong> (Universitarios vs No Universitarios).</p>
+<div class="card">
+<ul>
+<li><strong>El Umbral 0.30 como Base:</strong> Adoptamos el umbral ajustado empíricamente como nuestro nuevo modelo base comercial, ya que demostró mejorar los Verdaderos Positivos.</li>
+<li><strong>Prueba de Mitigadores:</strong> Aplicamos <em>Reweighing</em> y un <em>Threshold Adjustment</em> iterativo específico por grupo educativo.</li>
+<li><strong>Conclusión Consistente:</strong> Confirmamos la misma tendencia que con la variable <code>job</code>. Nuestro modelo base ya presentaba disparidades ínfimas, por lo que intervenir forzosamente por subgrupos no aportó ganancias significativas de equidad.</li>
+</ul>
+</div>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="14" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
+  background-color: #F0F8FF;
+  color: #002244;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 60px 80px 80px 80px;
+  font-size: 27px; /* Reducción ligera para dar más respiro */
+}
+header {
+  position: absolute;
+  top: 40px;
+  left: auto;
+  right: 50px;
+  width: auto;
+  text-align: right;
+  z-index: 10;
+}
+header img {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Ocultar page control a los 4s sin hover */
+.bespoke-marp-osc {
+  opacity: 0 !important;
+  transition: opacity 0.5s ease-in-out 4s !important;
+  pointer-events: none; /* Evita que el OSC invisible intercepte clics */
+}
+.bespoke-marp-parent:hover .bespoke-marp-osc {
+  opacity: 1 !important;
+  transition-delay: 0s !important;
+  pointer-events: auto;
+}
+
+h1, h2, h3 {
+  color: #0047AB;
+  margin-bottom: 0.4em;
+}
+h1 { font-size: 2em; font-weight: bold; }
+h2 { font-size: 1.4em; border-bottom: 2px solid #0047AB; padding-bottom: 5px; margin-top: 0; }
+p, li { font-size: 1em; line-height: 1.35; }
+ul { padding-left: 1.2em; }
+strong { color: #003366; }
+
+/* Glassmorphism Cards */
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 34, 68, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.columns { display: flex; gap: 2em; align-items: stretch; }
+.column { flex: 1; }
+
+img {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,34,68,0.1);
+}
+
+.center { text-align: center; }
+.highlight-box {
+  background: rgba(0, 71, 171, 0.05);
+  border-left: 4px solid #0047AB;
+  padding: 15px 20px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+/* Portada Styling */
+section.portada {
+  background: linear-gradient(135deg, #001f3f 0%, #0047AB 100%);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.portada h1 { color: white; border: none; font-size: 3em; margin-bottom: 0.2em; }
+section.portada h2 { color: #87CEFA; border: none; font-size: 1.5em; font-weight: normal; }
+section.portada .details { margin-top: 2em; font-size: 1.2em; color: #E0FFFF; }
+
+/* Preguntas Styling */
+section.preguntas {
+  background-color: #0047AB;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.preguntas h1 { color: white; border: none; font-size: 4em; }
+" lang="es-AR" data-marpit-pagination="14" style="--paginate:true;--header:![w:150](../assets/Logo_UNSAM.png);--style:section {
+  background-color: #F0F8FF;
+  color: #002244;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 60px 80px 80px 80px;
+  font-size: 27px; /* Reducción ligera para dar más respiro */
+}
+header {
+  position: absolute;
+  top: 40px;
+  left: auto;
+  right: 50px;
+  width: auto;
+  text-align: right;
+  z-index: 10;
+}
+header img {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Ocultar page control a los 4s sin hover */
+.bespoke-marp-osc {
+  opacity: 0 !important;
+  transition: opacity 0.5s ease-in-out 4s !important;
+  pointer-events: none; /* Evita que el OSC invisible intercepte clics */
+}
+.bespoke-marp-parent:hover .bespoke-marp-osc {
+  opacity: 1 !important;
+  transition-delay: 0s !important;
+  pointer-events: auto;
+}
+
+h1, h2, h3 {
+  color: #0047AB;
+  margin-bottom: 0.4em;
+}
+h1 { font-size: 2em; font-weight: bold; }
+h2 { font-size: 1.4em; border-bottom: 2px solid #0047AB; padding-bottom: 5px; margin-top: 0; }
+p, li { font-size: 1em; line-height: 1.35; }
+ul { padding-left: 1.2em; }
+strong { color: #003366; }
+
+/* Glassmorphism Cards */
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 34, 68, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.columns { display: flex; gap: 2em; align-items: stretch; }
+.column { flex: 1; }
+
+img {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,34,68,0.1);
+}
+
+.center { text-align: center; }
+.highlight-box {
+  background: rgba(0, 71, 171, 0.05);
+  border-left: 4px solid #0047AB;
+  padding: 15px 20px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+/* Portada Styling */
+section.portada {
+  background: linear-gradient(135deg, #001f3f 0%, #0047AB 100%);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.portada h1 { color: white; border: none; font-size: 3em; margin-bottom: 0.2em; }
+section.portada h2 { color: #87CEFA; border: none; font-size: 1.5em; font-weight: normal; }
+section.portada .details { margin-top: 2em; font-size: 1.2em; color: #E0FFFF; }
+
+/* Preguntas Styling */
+section.preguntas {
+  background-color: #0047AB;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.preguntas h1 { color: white; border: none; font-size: 4em; }
+;" data-marpit-pagination-total="16">
+<header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
+<h2 id="13-lecciones-sobre-la-mitigaci%C3%B3n">13. Lecciones sobre la Mitigación</h2>
+<p>Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en la práctica:</p>
+<div class="columns">
+<div class="column">
+<div class="card">
+<ul>
+<li><strong>No asumas el sesgo, mídelo</strong>: El modelo base resultó ser altamente equitativo de forma natural.</li>
+<li><strong>Más mitigación no siempre es mejor</strong>: Intervenir agresivamente con algoritmos de <em>post-processing</em> terminó añadiendo ruido y empeorando las métricas de sesgo.</li>
+<li><strong>Pruebas de estrés</strong>: Un umbral estándar (0.1) puede ser muy permisivo; es clave analizar la robustez con umbrales más estrictos (0.01).</li>
+</ul>
+</div>
+</div>
+<div class="column">
+  <img src="../assets/ej5_img1.png" alt="Trade-off Plot" />
+</div>
+</div>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="15" data-paginate="true" data-header="![w:150](../assets/Logo_UNSAM.png)" data-style="section {
+  background-color: #F0F8FF;
+  color: #002244;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 60px 80px 80px 80px;
+  font-size: 27px; /* Reducción ligera para dar más respiro */
+}
+header {
+  position: absolute;
+  top: 40px;
+  left: auto;
+  right: 50px;
+  width: auto;
+  text-align: right;
+  z-index: 10;
+}
+header img {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Ocultar page control a los 4s sin hover */
+.bespoke-marp-osc {
+  opacity: 0 !important;
+  transition: opacity 0.5s ease-in-out 4s !important;
+  pointer-events: none; /* Evita que el OSC invisible intercepte clics */
+}
+.bespoke-marp-parent:hover .bespoke-marp-osc {
+  opacity: 1 !important;
+  transition-delay: 0s !important;
+  pointer-events: auto;
+}
+
+h1, h2, h3 {
+  color: #0047AB;
+  margin-bottom: 0.4em;
+}
+h1 { font-size: 2em; font-weight: bold; }
+h2 { font-size: 1.4em; border-bottom: 2px solid #0047AB; padding-bottom: 5px; margin-top: 0; }
+p, li { font-size: 1em; line-height: 1.35; }
+ul { padding-left: 1.2em; }
+strong { color: #003366; }
+
+/* Glassmorphism Cards */
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 34, 68, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.columns { display: flex; gap: 2em; align-items: stretch; }
+.column { flex: 1; }
+
+img {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,34,68,0.1);
+}
+
+.center { text-align: center; }
+.highlight-box {
+  background: rgba(0, 71, 171, 0.05);
+  border-left: 4px solid #0047AB;
+  padding: 15px 20px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+/* Portada Styling */
+section.portada {
+  background: linear-gradient(135deg, #001f3f 0%, #0047AB 100%);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.portada h1 { color: white; border: none; font-size: 3em; margin-bottom: 0.2em; }
+section.portada h2 { color: #87CEFA; border: none; font-size: 1.5em; font-weight: normal; }
+section.portada .details { margin-top: 2em; font-size: 1.2em; color: #E0FFFF; }
+
+/* Preguntas Styling */
+section.preguntas {
+  background-color: #0047AB;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.preguntas h1 { color: white; border: none; font-size: 4em; }
+" lang="es-AR" data-marpit-pagination="15" style="--paginate:true;--header:![w:150](../assets/Logo_UNSAM.png);--style:section {
+  background-color: #F0F8FF;
+  color: #002244;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 60px 80px 80px 80px;
+  font-size: 27px; /* Reducción ligera para dar más respiro */
+}
+header {
+  position: absolute;
+  top: 40px;
+  left: auto;
+  right: 50px;
+  width: auto;
+  text-align: right;
+  z-index: 10;
+}
+header img {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Ocultar page control a los 4s sin hover */
+.bespoke-marp-osc {
+  opacity: 0 !important;
+  transition: opacity 0.5s ease-in-out 4s !important;
+  pointer-events: none; /* Evita que el OSC invisible intercepte clics */
+}
+.bespoke-marp-parent:hover .bespoke-marp-osc {
+  opacity: 1 !important;
+  transition-delay: 0s !important;
+  pointer-events: auto;
+}
+
+h1, h2, h3 {
+  color: #0047AB;
+  margin-bottom: 0.4em;
+}
+h1 { font-size: 2em; font-weight: bold; }
+h2 { font-size: 1.4em; border-bottom: 2px solid #0047AB; padding-bottom: 5px; margin-top: 0; }
+p, li { font-size: 1em; line-height: 1.35; }
+ul { padding-left: 1.2em; }
+strong { color: #003366; }
+
+/* Glassmorphism Cards */
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 34, 68, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.columns { display: flex; gap: 2em; align-items: stretch; }
+.column { flex: 1; }
+
+img {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,34,68,0.1);
+}
+
+.center { text-align: center; }
+.highlight-box {
+  background: rgba(0, 71, 171, 0.05);
+  border-left: 4px solid #0047AB;
+  padding: 15px 20px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+/* Portada Styling */
+section.portada {
+  background: linear-gradient(135deg, #001f3f 0%, #0047AB 100%);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.portada h1 { color: white; border: none; font-size: 3em; margin-bottom: 0.2em; }
+section.portada h2 { color: #87CEFA; border: none; font-size: 1.5em; font-weight: normal; }
+section.portada .details { margin-top: 2em; font-size: 1.2em; color: #E0FFFF; }
+
+/* Preguntas Styling */
+section.preguntas {
+  background-color: #0047AB;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+section.preguntas h1 { color: white; border: none; font-size: 4em; }
+;" data-marpit-pagination-total="16">
+<header><img src="../assets/Logo_UNSAM.png" alt="" style="width:150px;" /></header>
+<h2 id="14-reflexi%C3%B3n-en-el-mundo-real">14. Reflexión en el Mundo Real</h2>
 <p><strong>Más allá de los números</strong><br />
 Un modelo sesgado que deniega sistemáticamente oportunidades genera <strong>ciclos de retroalimentación negativos</strong>:<br />
 Grupos marginados no son contactados <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="2.262ex" height="1.181ex" role="img" focusable="false" viewBox="0 -511 1000 522"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><path data-c="2192" d="M56 237T56 250T70 270H835Q719 357 692 493Q692 494 692 496T691 499Q691 511 708 511H711Q720 511 723 510T729 506T732 497T735 481T743 456Q765 389 816 336T935 261Q944 258 944 250Q944 244 939 241T915 231T877 212Q836 186 806 152T761 85T740 35T732 4Q730 -6 727 -8T711 -11Q691 -11 691 0Q691 7 696 25Q728 151 835 230H70Q56 237 56 250Z"></path></g></g></g></svg></mjx-container> no generan historial <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="2.262ex" height="1.181ex" role="img" focusable="false" viewBox="0 -511 1000 522"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><path data-c="2192" d="M56 237T56 250T70 270H835Q719 357 692 493Q692 494 692 496T691 499Q691 511 708 511H711Q720 511 723 510T729 506T732 497T735 481T743 456Q765 389 816 336T935 261Q944 258 944 250Q944 244 939 241T915 231T877 212Q836 186 806 152T761 85T740 35T732 4Q730 -6 727 -8T711 -11Q691 -11 691 0Q691 7 696 25Q728 151 835 230H70Q56 237 56 250Z"></path></g></g></g></svg></mjx-container> el modelo futuro aprende que &quot;no son propensos al éxito&quot;.</p>
@@ -2811,7 +3227,7 @@ Grupos marginados no son contactados <mjx-container class="MathJax" jax="SVG"><s
 Los algoritmos y los datos no son neutros. Mitigar sesgos no es solo un ajuste técnico; es un imperativo ético para no amplificar ni automatizar inequidades estructurales a gran escala.
 </div>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="14" data-class="preguntas" data-style="section {
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="16" data-class="preguntas" data-style="section {
   background-color: #F0F8FF;
   color: #002244;
   font-family: 'Inter', 'Segoe UI', sans-serif;

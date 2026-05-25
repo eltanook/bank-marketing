@@ -115,8 +115,8 @@ style: |
 
 <div class="details">
   <p>Trabajo Práctico Integrador</p>
-  <p>1er Cuatrimestre 2026</p>
-  <p>Universidad Nacional de San Martín (UNSAM)</p>
+  <p><strong>Integrantes:</strong> Tomás Nadal, Alejandro Echeverri, Matías Bacalhau</p>
+  <p>1er Cuatrimestre 2026 | Universidad Nacional de San Martín (UNSAM)</p>
 </div>
 
 ---
@@ -302,7 +302,21 @@ Utilizando el módulo de la diferencia como medida de disparidad:
 
 ---
 
-## 9. Mitigación: Equalized Odds (Post-procesamiento)
+## 9. Enfoque Alternativo: Ajuste Manual de Umbral
+
+Antes de recurrir a un post-procesamiento complejo, evaluamos una intervención directa para priorizar la captación comercial (reducir Falsos Negativos).
+
+<div class="card" style="margin-bottom: 20px;">
+
+- **Técnica:** Analizamos las métricas internas del Random Forest y bajamos el umbral de decisión para clasificar como "Sí" de `0.50` a **`0.30`**.
+- **Resultado:** Aumentamos drásticamente la cantidad de Verdaderos Positivos (mayor Recall o TPR).
+- **Conclusión:** A veces un ajuste empírico simple y guiado por el negocio es más transparente y efectivo que forzar restricciones matemáticas a ciegas en todo el pipeline.
+
+</div>
+
+---
+
+## 10. Mitigación: Equalized Odds (Post-procesamiento)
 
 **Técnica:** Modifica los umbrales de decisión del modelo *después* de que fue entrenado, forzando matemáticamente la igualdad de TPR.
 
@@ -323,7 +337,7 @@ Utilizando el módulo de la diferencia como medida de disparidad:
 
 ---
 
-## 10. Resumen Numérico Comparativo
+## 11. Resumen Numérico Comparativo
 
 <div class="card">
 
@@ -341,7 +355,21 @@ Al aplicar las técnicas utilizando la librería **Holistic AI**, observamos los
 
 ---
 
-## 11. Lecciones sobre la Mitigación
+## 12. Extrapolación: Nivel Educativo (Ej 5)
+
+Para validar la robustez de la metodología, replicamos el análisis de equidad utilizando la variable **`education`** (Universitarios vs No Universitarios).
+
+<div class="card" style="margin-bottom: 20px;">
+
+- **El Umbral 0.30 como Base:** Adoptamos el umbral ajustado empíricamente como nuestro nuevo modelo base comercial, ya que demostró mejorar los Verdaderos Positivos.
+- **Prueba de Mitigadores:** Aplicamos *Reweighing* y un *Threshold Adjustment* iterativo específico por grupo educativo.
+- **Conclusión Consistente:** Confirmamos la misma tendencia que con la variable `job`. Nuestro modelo base ya presentaba disparidades ínfimas, por lo que intervenir forzosamente por subgrupos no aportó ganancias significativas de equidad.
+
+</div>
+
+---
+
+## 13. Lecciones sobre la Mitigación
 
 Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en la práctica:
 
@@ -362,7 +390,7 @@ Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en 
 
 ---
 
-## 12. Reflexión en el Mundo Real
+## 14. Reflexión en el Mundo Real
 
 **Más allá de los números**
 Un modelo sesgado que deniega sistemáticamente oportunidades genera **ciclos de retroalimentación negativos**:
