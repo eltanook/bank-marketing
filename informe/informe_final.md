@@ -1,7 +1,7 @@
 # Informe Final: Equidad en Aprendizaje Automático
 **Trabajo Práctico Integrador**
 **Conjunto de Datos:** Bank Marketing
-**Integrantes:** Tomás ..., Alejandro ..., Matías Bacalhau
+**Integrantes:** Tomás Nadal, Alejandro Echeverri, Matías Bacalhau
 
 ---
 
@@ -24,7 +24,7 @@ Para garantizar la transparencia y la auditabilidad exigida en experimentaciones
 
 Durante nuestra primera exploración de los datos, identificamos y graficamos diversos obstáculos estructurales intrínsecos a los problemas de marketing masivo que debíamos superar.
 
-[<Insertar imagen: data/imagenes/img_3.png (Gráfico de distribución del desbalance de la variable objetivo 'y') aquí>]
+![Gráfico de distribución del desbalance de la variable objetivo 'y'](imagenes_informe/ej1_image3.png)
 
 Como podemos evidenciar en el gráfico superior, descubrimos un **fuerte desbalance de clases**. Cerca del 90% de los contactos históricos en nuestra base de datos resultaron en rechazos categóricos (la etiqueta `no`). Este nivel de desequilibrio nos encendió una alerta roja: supimos de inmediato que, si no penalizábamos a nuestros algoritmos o ajustábamos nuestros umbrales, estos tenderían a especializarse en predecir exclusivamente el rechazo para minimizar el error global, ignorando a la pequeña minoría que sí desea suscribirse (nuestros potenciales clientes).
 
@@ -32,7 +32,7 @@ Como podemos evidenciar en el gráfico superior, descubrimos un **fuerte desbala
 
 Nuestra mayor dificultad ética inicial fue que el conjunto de datos original carece del atributo de **género** de manera explícita, debido al anonimato provisto por el banco. Para poder evaluar las disparidades demográficas que exige la auditoría de equidad, nosotros adoptamos el atributo categórico **`job` (ocupación)** como una variable *proxy* (inferencial) de género. 
 
-[<Insertar imagen: data/imagenes/img_1.png (Gráfico de distribución de clientes según su categoría laboral / Proxy de género) aquí>]
+![Gráfico de distribución de clientes según su categoría laboral / Proxy de género](imagenes_informe/ej1_image1.png)
 
 Al analizar las barras del gráfico de distribución ocupacional, nosotros agrupamos las categorías histórica y culturalmente feminizadas (`housemaid` y `admin.`) en el segmento protegido que denominamos `hist_femenino` (representando un total de 1257 instancias), frente al resto de profesiones (tales como gerentes, obreros, técnicos) que agrupamos en `hist_masculino_otro` (con 7786 instancias). De esta manera, habilitamos matemáticamente las evaluaciones de equidad para nuestro modelo.
 
@@ -42,11 +42,11 @@ Para tener una visión más holística, nosotros también decidimos graficar y e
 
 *   **El Sesgo por Edad (Variable Protegida Oficial):** Notamos un fenómeno llamado la *paradoja de la tasa base*. El grupo poblacional mayor (más de 65 años) está drásticamente subrepresentado en los datos de entrenamiento. Sin embargo, tienen la tasa de suscripción más alta (~27%). El modelo, al carecer de muestras, ignora esta alta probabilidad y arroja falsos negativos recurrentes para este grupo demográfico.
 
-[<Insertar imagen: data/imagenes/img_5.png (Gráfico de distribución de la variable nivel educativo) aquí>]
+![Gráfico de distribución de la variable nivel educativo](imagenes_informe/ej1_image5.png)
 
 Notamos que la educación secundaria domina la muestra. Sin embargo, al cruzar estos datos con las tasas de conversión, vimos que los clientes con educación terciaria (universitarios) tenían mayor propensión porcentual a suscribirse, lo que podría hacer que el modelo priorice inherentemente a este grupo privilegiado.
 
-[<Insertar imagen: data/imagenes/img_7.png (Gráfico de distribución de la variable estado civil) aquí>]
+![Gráfico de distribución de la variable estado civil](imagenes_informe/ej1_image7.png)
 
 De igual forma, visualizamos que las personas casadas son abrumadora mayoría frente a solteros y divorciados. Este análisis exploratorio profundo nos demostró que debíamos tener muchísimo cuidado al elegir nuestra variable protegida principal y al auditar las decisiones de nuestro algoritmo en fases posteriores.
 
@@ -56,7 +56,24 @@ Como paso fundamental de la ingeniería de datos en nuestro *pipeline* de prepro
 
 Para la tarea central de clasificación, nosotros seleccionamos un modelo de **Random Forest** (Bosque Aleatorio) instanciado con hiperparámetros robustos (como `n_estimators=100` y el hiperparámetro correctivo `class_weight='balanced'`). Elegimos este ensamble de árboles de decisión porque nos brinda muchísima flexibilidad frente a las características mixtas y complejas de nuestro dataset. A pesar del esfuerzo de balanceo inicial, tras entrenar el modelo obtuvimos el siguiente reporte directo desde nuestros cuadernos de código:
 
-[<Insertar output de consola: classification_report del modelo Random Forest Baseline aquí>]
+```text
+=======================================================
+              REPORTE DE CLASIFICACIÓN
+=======================================================
+              precision    recall  f1-score   support
+
+          no       0.90      0.98      0.94      7985
+         yes       0.61      0.20      0.30      1058
+
+    accuracy                           0.89      9043
+   macro avg       0.75      0.59      0.62      9043
+weighted avg       0.87      0.89      0.87      9043
+```
+
+Adicionalmente, generamos visualizaciones sobre el comportamiento del modelo base (como matrices de confusión e importancia de variables) que ilustran claramente las limitaciones predictivas en la clase minoritaria:
+
+![Gráficos del Modelo Random Forest (Baseline) - Parte 1](imagenes_informe/ej2_img_1.png)
+![Gráficos del Modelo Random Forest (Baseline) - Parte 2](imagenes_informe/ej2_img_2.png)
 
 La métrica de exactitud global (*Accuracy*) alcanzó un fabuloso **89%**. Sin embargo, nosotros sabíamos que esto era producto del desbalance. Al mirar el reporte que generamos, la cruda realidad es que nuestro *Recall* (Sensibilidad) para la clase `yes` fue de apenas un **20%**. 
 Es decir, nuestro modelo identificaba casi perfectamente a los que iban a rechazar (98%), pero pasaba por alto y perdía al 80% de los clientes que verdaderamente se querían suscribir (Falsos Negativos). 
@@ -84,7 +101,24 @@ A su vez,d ecidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica es
 
 Al medir esto sobre nuestro Random Forest inicial con una estricta tolerancia del 10% (umbral de disparidad del 0.1), **nos sorprendimos gratamente al descubrir que nuestro modelo ya era equitativo (*Fair*)**. 
 
-[<Insertar output de consola: Métricas de Fairness por grupo y disparidades calculadas (Statistical Parity y Equal Opportunity TPR) con umbral 0.1 aquí>]
+```text
+--- Métricas de Fairness por Grupo (job) ---
+                     Statistical Parity  Equal Opportunity (TPR)  Predictive Parity (Precision)  TPR (Equalized Odds)  FPR (Equalized Odds)
+Grupo                                                                                                                                      
+hist_femenino                  0.036595                 0.184932                       0.586957              0.184932              0.017102
+hist_masculino_otro            0.038402                 0.199561                       0.608696              0.199561              0.017021
+
+--- Disparidades (umbral = 0.1) ---
+Statistical Parity: 0.0018 → ✅ FAIR
+Equal Opportunity (TPR): 0.0146 → ✅ FAIR
+Predictive Parity (Precision): 0.0217 → ✅ FAIR
+TPR (Equalized Odds): 0.0146 → ✅ FAIR
+FPR (Equalized Odds): 0.0001 → ✅ FAIR
+```
+
+Para apoyar numéricamente estos hallazgos, el siguiente gráfico ilustra de forma visual las métricas de equidad evaluadas para los subgrupos de la variable protegida:
+
+![Gráfico de Métricas de Equidad por Grupo (Proxy de Género)](imagenes_informe/ej3_img_1.png)
 
 La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femeninos fue del 18.49% y para el resto del 20.50%. Esto demostró empíricamente que nuestro Random Forest, en su forma nativa, no discriminaba a las ocupaciones feminizadas a la hora de acertar con los suscriptores.
 
@@ -99,13 +133,32 @@ A pesar de que descubrimos que nuestro modelo era éticamente equitativo, nosotr
 ### 5.1 Reweighing (Pre-procesamiento)
 Nosotros aplicamos *Reweighing* para inyectar ponderaciones en los datos de entrenamiento. Esta técnica calcula los pesos de manera inversamente proporcional a la frecuencia de las clases, buscando balancear la representación. Curiosamente, encontramos que este enfoque falló estrepitosamente para nuestros propósitos de negocio. Si bien nos subió imperceptiblemente la Exactitud global a 0.8937, nosotros notamos que el algoritmo sacrificó la Tasa de Verdaderos Positivos (TPR) del grupo `hist_femenino` (cayendo de 0.1849 a un decepcionante 0.1575). Decidimos que esto era inaceptable porque, al intentar ajustar la equidad teórica general, el mitigador rompía empíricamente nuestra Igualdad de Oportunidades.
 
+Para ilustrar los resultados tras la aplicación de esta técnica, adjuntamos la visualización generada por la librería *Holistic AI*:
+
+![Métricas de Equidad - Reweighing](imagenes_informe/ej4_img_1.png)
+
 ### 5.2 Equalized Odds (Post-procesamiento)
 También utilizamos el mitigador *post-hoc* de *Holistic AI*, el cual aplica algoritmos de programación lineal para forzar y ajustar las probabilidades predictivas finales (igualando el TPR y el FPR forzosamente). Al aplicarlo sobre nuestro modelo que ya tenía apenas un 2% de disparidad, nosotros constatamos que el optimizador matemático directamente no produjo mejoras. El sistema determinó que no había margen para optimizar restricciones sin dañar la coherencia del modelo. Esto nos enseñó una valiosa lección empírica: aplicar librerías matemáticas complejas a ciegas sobre un modelo que ya es equitativo de origen no soluciona el problema subyacente de la falta de Recall (falta de Verdaderos Positivos).
+
+A continuación se expone el reporte visual de *Holistic AI* con las métricas post-procesamiento:
+
+![Métricas de Equidad - Equalized Odds](imagenes_informe/ej4_img_2.png)
 
 ### 5.3 Nuestro Hallazgo Central: El Ajuste Manual de Umbral (Logit Tuning)
 Viendo que la matemática correctiva dura no nos conseguía más clientes, nosotros tomamos la decisión táctica de intervenir manualmente la capa probabilística (*Logit*) del algoritmo original. Por defecto, un modelo de clasificación asigna `yes` si la probabilidad de suscripción supera el rígido 0.50 (50%). Nosotros, priorizando el negocio, programamos un ciclo para iterar umbrales mucho más bajos y obtuvimos los siguientes resultados reveladores en la terminal:
 
-[<Insertar output de consola: Variación de resultados TP, FN, FP, TN bajando el umbral de 0.20 a 0.40 aquí>]
+```text
+Umbral 0.20 → TP: 618, FN: 440, FP: 1073, TN: 6912
+Umbral 0.25 → TP: 554, FN: 504, FP: 779, TN: 7206
+Umbral 0.30 → TP: 480, FN: 578, FP: 581, TN: 7404
+Umbral 0.35 → TP: 404, FN: 654, FP: 428, TN: 7557
+Umbral 0.40 → TP: 352, FN: 706, FP: 317, TN: 7668
+```
+
+Para evaluar el impacto integral de estas mitigaciones, graficamos a continuación una comparación de performance entre los tres enfoques probados (Modelo Original, Reweighing y Equalized Odds) y añadimos el resultado gráfico del umbral de decisión:
+
+![Comparación de Performance de los Modelos Mitigados](imagenes_informe/ej4_img_3.png)
+![Resultados Operativos con Ajuste de Umbral](imagenes_informe/ej4_img_7.png)
 
 Al final del análisis, nosotros decidimos establecer operativamente un **umbral manual de 0.30**. Con este sencillo pero poderoso ajuste, descubrimos que los Verdaderos Positivos (clientes detectados con éxito) se duplicaron, pasando de los 214 originales a 462. Logramos incrementar drásticamente las ganancias simuladas del banco, reduciendo los Falsos Negativos (que cayeron de más de 800 a 596), sin quebrar en ningún momento la equidad distributiva inicial entre nuestros proxy de género. 
 
@@ -117,6 +170,10 @@ Para cristalizar el peso de esta decisión matemática, nosotros realizamos una 
 Uno de los pilares de la ingeniería de *Machine Learning* es la escalabilidad. Para probar la calidad de la arquitectura que escribimos, nosotros extrapolamos y replicamos todos nuestros cálculos de métricas y mitigadores usándolos directamente sobre una nueva variable demográfica: **`education` (nivel educativo)**. 
 
 Al correr nuestra infraestructura de cuadernos Jupyter (`ej5.ipynb`) para evaluar los distintos niveles de educación frente al resultado, nosotros confirmamos empíricamente que el sistema es totalmente agnóstico a la variable protegida de turno. El *pipeline* funcionó impecablemente extrayendo las disparidades (Equal Opportunity, Statistical Parity) para los subgrupos de primaria, secundaria y terciaria. Comprobamos, así, que el banco puede auditar futuras características usando exactamente nuestra misma base de código.
+
+El siguiente gráfico de barras consolida los resultados comparativos de aplicar las distintas técnicas predictivas y de mitigación tomando a la educación como eje:
+
+![Comparación de Performance Global - Nivel Educativo](imagenes_informe/ej5_img_1.png)
 
 **Análisis Interseccional**
 Como aprendizaje avanzado de este ejercicio, nosotros comprendimos la vital importancia analítica de la *interseccionalidad*. En auditorías contemporáneas, evaluar la equidad por ocupación y luego por educación de manera aislada suele ser insuficiente. Sabemos que la vulnerabilidad algorítmica se multiplica peligrosamente cuando los ejes de identidad se cruzan de manera concurrente (por ejemplo, analizar específicamente cómo trata el modelo a un clúster de mujeres que laboran en oficios feminizados y que, simultáneamente, solo poseen educación primaria o son adultas mayores). Nuestros hallazgos iniciales demuestran que la infraestructura que construimos soporta plenamente este nivel de detalle técnico, dejando las bases sólidas para ejecutar cruces interseccionales profundos en el futuro.
@@ -141,8 +198,8 @@ Consideramos que la adopción de proxies inferenciales como paliativo debe ser u
 
 Todo el trabajo integral aquí plasmado fue producto del intenso debate y de las iteraciones computacionales continuas de nosotros tres como equipo cohesionado. Nuestra división de tareas metodológicas fue la siguiente:
 
-*   **Tomás** ...
-*   **Alejandro** ...
+*   **Tomás** Nadal
+*   **Alejandro** Echeverri
 *   **Matías** Bacalhau
 
 ## 10. Referencias

@@ -1,0 +1,217 @@
+--- Processing ej1.ipynb ---
+--- Processing ej2.ipynb ---
+  Stdout output from cell 7:
+=======================================================
+              REPORTE DE CLASIFICACIÓN
+=======================================================
+              precision    recall  f1-score   support
+
+          no       0.90      0.98      0.94      7985
+         yes       0.61      0.20      0.30      1058
+
+    accuracy                           0.89      9043
+   macro avg       0.75      0.59      0.62      9043
+weighted avg       0.87      0.89      0.87      9043
+
+
+  Saved informe\imagenes_informe\ej2_img_1.png (from cell with source: # Entrenamiento
+modelo = RandomForestClassifier(n_...)
+  Saved informe\imagenes_informe\ej2_img_2.png (from cell with source: # Construir DataFrame de análisis con valores orig...)
+--- Processing ej3.ipynb ---
+  Stdout output from cell 8:
+--- Métricas de Fairness por Grupo (job) ---
+                     Statistical Parity  Equal Opportunity (TPR)  Predictive Parity (Precision)  TPR (Equalized Odds)  FPR (Equalized Odds)
+Grupo                                                                                                                                      
+hist_femenino                  0.036595                 0.184932                       0.586957              0.184932              0.017102
+hist_masculino_otro            0.038402                 0.199561                       0.608696              0.199561              0.017021
+
+--- Disparidades (umbral = 0.1) ---
+Statistical Parity: 0.0018 → ✅ FAIR
+Equal Opportunity (TPR): 0.0146 → ✅ FAIR
+Predictive Parity (Precision): 0.0217 → ✅ FAIR
+TPR (Equalized Odds): 0.0146 → ✅ FAIR
+FPR (Equalized Odds): 0.0001 → ✅ FAIR
+
+  Saved informe\imagenes_informe\ej3_img_1.png (from cell with source: # Calcular métricas por grupo (job)
+grupos_job = [...)
+  Stdout output from cell 9:
+=== BASE RATES ===
+hist_femenino:
+  Cantidad= 1257, base rate= 0.1161
+hist_masculino_otro:
+  Cantidad= 7786, base rate= 0.1171
+
+=== Umbral = 0.05 ===
+  Statistical Parity: 0.0018 → ✅
+  Equal Opportunity (TPR): 0.0146 → ✅
+  Predictive Parity (Precision): 0.0217 → ✅
+  TPR (Equalized Odds): 0.0146 → ✅
+  FPR (Equalized Odds): 0.0001 → ✅
+
+=== Umbral = 0.03 ===
+  Statistical Parity: 0.0018 → ✅
+  Equal Opportunity (TPR): 0.0146 → ✅
+  Predictive Parity (Precision): 0.0217 → ✅
+  TPR (Equalized Odds): 0.0146 → ✅
+  FPR (Equalized Odds): 0.0001 → ✅
+
+=== Umbral = 0.01 ===
+  Statistical Parity: 0.0018 → ✅
+  Equal Opportunity (TPR): 0.0146 → ❌
+  Predictive Parity (Precision): 0.0217 → ❌
+  TPR (Equalized Odds): 0.0146 → ❌
+  FPR (Equalized Odds): 0.0001 → ✅
+
+--- Processing ej4.ipynb ---
+  Stdout output from cell 9:
+
+=================================================================
+  REWEIGHING (Holistic AI) — job (proxy género)
+=================================================================
+              precision    recall  f1-score   support
+
+          no       0.90      0.98      0.94      7985
+         yes       0.61      0.20      0.30      1058
+
+    accuracy                           0.89      9043
+   macro avg       0.76      0.59      0.62      9043
+weighted avg       0.87      0.89      0.87      9043
+
+
+Métricas de Fairness (Holistic AI):
+                                       Value  Reference
+Metric                                                 
+Statistical Parity                 -0.001375          0
+Disparate Impact                    0.965433          1
+Four Fifths Rule                    0.965433          1
+Cohen D                            -0.007138          0
+2SD Rule                           -0.234832          0
+Equality of Opportunity Difference  0.004221          0
+False Positive Rate Difference     -0.002318          0
+Average Odds Difference             0.000952          0
+Accuracy Difference                 0.001771          0
+
+  Saved informe\imagenes_informe\ej4_img_1.png (from cell with source: # ── 1. Reweighing con Holistic AI (job) ─────────...)
+  Stdout output from cell 11:
+
+=================================================================
+  EQUALIZED ODDS (Holistic AI) — job (proxy género)
+=================================================================
+              precision    recall  f1-score   support
+
+          no       0.90      0.98      0.94      7985
+         yes       0.61      0.20      0.30      1058
+
+    accuracy                           0.89      9043
+   macro avg       0.75      0.59      0.62      9043
+weighted avg       0.87      0.89      0.87      9043
+
+
+Métricas de Fairness (Holistic AI):
+                                       Value  Reference
+Metric                                                 
+Statistical Parity                  0.001807          0
+Disparate Impact                    1.049384          1
+Four Fifths Rule                    0.952940          1
+Cohen D                             0.009434          0
+2SD Rule                            0.310360          0
+Equality of Opportunity Difference  0.014630          0
+False Positive Rate Difference     -0.000081          0
+Average Odds Difference             0.007274          0
+Accuracy Difference                 0.001000          0
+
+  Saved informe\imagenes_informe\ej4_img_2.png (from cell with source: # ── 1. Equalized Odds con Holistic AI (job) ─────...)
+  Stdout output from cell 14:
+=== VARIABLE PROTEGIDA: job (proxy género) ===
+                           Accuracy  Precision  Recall  F1-score
+Modelo                                                          
+Baseline (sin mitigación)    0.8911     0.6058  0.1975    0.2979
+Reweighing (HAI)             0.8917     0.6132  0.2023    0.3042
+Equalized Odds (HAI)         0.8911     0.6058  0.1975    0.2979
+
+  Saved informe\imagenes_informe\ej4_img_3.png (from cell with source: def resumen_performance(y_true, predicciones_dict)...)
+  Stdout output from cell 19:
+                                       Value  Reference
+Metric                                                 
+Statistical Parity                  0.000907          0
+Disparate Impact                    1.020417          1
+Four Fifths Rule                    0.979991          1
+Cohen D                             0.004397          0
+2SD Rule                            0.144656          0
+Equality of Opportunity Difference  0.003980          0
+False Positive Rate Difference      0.000745          0
+Average Odds Difference             0.002363          0
+Accuracy Difference                 0.000537          0
+
+  Saved informe\imagenes_informe\ej4_img_4.png (from cell with source: evaluar_equidad_grafica(y_test,y_pred, group_a, gr...)
+  Stdout output from cell 22:
+                                       Value  Reference
+Metric                                                 
+Statistical Parity                 -0.001276          0
+Disparate Impact                    0.972629          1
+Four Fifths Rule                    0.972629          1
+Cohen D                            -0.006064          0
+2SD Rule                           -0.199483          0
+Equality of Opportunity Difference  0.017949          0
+False Positive Rate Difference     -0.003556          0
+Average Odds Difference             0.007197          0
+Accuracy Difference                 0.005953          0
+
+  Saved informe\imagenes_informe\ej4_img_5.png (from cell with source: evaluar_equidad_grafica(y_test,y_pred_pipeline1, g...)
+  Stdout output from cell 24:
+==================================================
+-> ETIQUETAS MODIFICADAS POR EQUALIZED ODDS: 71
+-> Si este número es 0, el mitigador decidió que no había margen de mejora.
+==================================================
+                                       Value  Reference
+Metric                                                 
+Statistical Parity                  0.005318          0
+Disparate Impact                    1.254023          1
+Four Fifths Rule                    0.797434          1
+Cohen D                             0.036523          0
+2SD Rule                            1.201437          0
+Equality of Opportunity Difference  0.067337          0
+False Positive Rate Difference     -0.002719          0
+Average Odds Difference             0.032309          0
+Accuracy Difference                 0.011090          0
+
+  Saved informe\imagenes_informe\ej4_img_6.png (from cell with source: evaluar_equidad_grafica(y_test,y_pred_pipeline2, g...)
+  Stdout output from cell 28:
+Umbral 0.20 ÔåÆ TP: 618, FN: 440, FP: 1073, TN: 6912
+Umbral 0.25 ÔåÆ TP: 554, FN: 504, FP: 779, TN: 7206
+Umbral 0.30 ÔåÆ TP: 480, FN: 578, FP: 581, TN: 7404
+Umbral 0.35 ÔåÆ TP: 404, FN: 654, FP: 428, TN: 7557
+Umbral 0.40 ÔåÆ TP: 352, FN: 706, FP: 317, TN: 7668
+
+  Saved informe\imagenes_informe\ej4_img_7.png (from cell with source: umbral_elegido = 0.3  # por ejemplo
+y_pred_final =...)
+--- Processing ej5.ipynb ---
+  Stdout output from cell 3:
+=================================================================
+  a) COMPARACIÓN DE PERFORMANCE GLOBAL — job (proxy género)
+=================================================================
+                Accuracy  Precision(yes)  Recall(yes)   F1(yes)
+Modelo                                                         
+Original        0.891076        0.605797     0.197543  0.297933
+Reweighting     0.894172        0.675958     0.183365  0.288476
+Threshold Adj.  0.891076        0.603989     0.200378  0.300923
+
+--- Fairness por grupo (Equal Opportunity = TPR) ---
+                TPR_hist_femenino  FPR_hist_femenino  TPR_hist_masculino_otro  FPR_hist_masculino_otro  Disparidad_TPR  Disparidad_FPR
+Modelo                                                                                                                                
+Original                 0.184932           0.017102                 0.199561                 0.017021        0.014630        0.000081
+Reweighting              0.184932           0.012601                 0.183114                 0.011493        0.001817        0.001109
+Threshold Adj.           0.205479           0.019802                 0.199561                 0.017021        0.005918        0.002781
+
+  Saved informe\imagenes_informe\ej5_img_1.png (from cell with source: 
+
+# ---- a) Tabla comparativa de performance ----
+...)
+  Text output from cell 4:
+'################################################################################################################################################\nSi ponemos el umbral de 0.3 en el modelo original:\n1) todo mejora, excepto para el modelo con reweighting.\n2) la diff entre los grupos es casi nula, por lo que el threshold Adj devuelve exactamente lo mismo. conclusión: Job no es un problema\n3) el modelo de reweighting gana mucho en precision porque tiene muy bajo FP\n\n\n\nSi ponemos el umbral predeterminado:\n1) obtenemos un recall maximo de 0.2 (con mod 0.3 es del 0.4)\n2) las técnica de ajuste es tiene un impacto relativo alto  (la dif era de 0.2 en el orig y 0.1 con su implementación), pero en terminos absolutos nula\n3) globalmente los tres modelos son iguales.  \n\n\n\n################################################################################################################################################'
+  Saved informe\imagenes_informe\ej5_img_2.png (from cell with source: from sklearn.metrics import (
+    classification_r...)
+  Saved informe\imagenes_informe\ej5_img_3.png (from cell with source: from sklearn.metrics import (
+    classification_r...)
+  Saved informe\imagenes_informe\ej5_img_4.png (from cell with source: from sklearn.metrics import (
+    classification_r...)
