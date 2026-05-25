@@ -97,7 +97,7 @@ Basándonos en la teoría dictada en clase y en investigaciones pioneras, nosotr
 
 Nosotros consideramos un teorema fundamental de la equidad en Machine Learning (Chouldechova, 2017; Kleinberg, Mullainathan, & Raghavan, 2016): cuando las tasas base (la proporción real de clientes que suscriben) difieren entre grupos, **es matemáticamente imposible satisfacer simultáneamente todos los criterios de equidad**, por lo que nos vimos obligados a elegir.
 
-A su vez,d ecidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Al querer minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
+A su vez, decidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Dado que queremos minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
 
 Al medir esto sobre nuestro Random Forest inicial con una estricta tolerancia del 10% (umbral de disparidad del 0.1), **nos sorprendimos gratamente al descubrir que nuestro modelo ya era equitativo (*Fair*)**. 
 
