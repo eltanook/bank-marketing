@@ -77,17 +77,17 @@ Basándonos en la teoría dictada en clase y en investigaciones pioneras, nosotr
 
 Nosotros consideramos un teorema fundamental de la equidad en Machine Learning (Chouldechova, 2017; Kleinberg, Mullainathan, & Raghavan, 2016): cuando las tasas base (la proporción real de clientes que suscriben) difieren entre grupos, **es matemáticamente imposible satisfacer simultáneamente todos los criterios de equidad**, por lo que nos vimos obligados a elegir.
 
-A su vez, decidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Al querer minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
+A su vez,d ecidimos adoptar **Equal Opportunity (TPR)** como nuestra métrica estrella. Al querer minimizar los Falsos Negativos, esta métrica nos garantiza que ofrecemos el mismo nivel de servicio e identificación de oportunidades financieras a las ocupaciones femeninas que a las demás.
 
 Al medir esto sobre nuestro Random Forest inicial con una estricta tolerancia del 10% (umbral de disparidad del 0.1), **nos sorprendimos gratamente al descubrir que nuestro modelo ya era equitativo (*Fair*)**. 
 
 [<Insertar output de consola: Métricas de Fairness por grupo y disparidades calculadas (Statistical Parity y Equal Opportunity TPR) con umbral 0.1 aquí>]
 
-La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femeninos fue del 18.49% y para el resto del 20.50%. Esto demostró empíricamente que nuestro Random Forest, en su forma nativa, o bien no discriminaba a las ocupaciones feminizadas a la hora de acertar con los suscriptores.
+La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femeninos fue del 18.49% y para el resto del 20.50%. Esto demostró empíricamente que nuestro Random Forest, en su forma nativa, no discriminaba a las ocupaciones feminizadas a la hora de acertar con los suscriptores.
 
-Alternativa: 
+alternativa: 
 
-    La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femenizados fue del 18.49% y para el resto del 20.50%. Esto nos plantea 3 escenarios: a) Nuestro Modelo en su forma original no está sesgado; no existe un sesgo histórico por el género en relación a nuestro problema; o  **Job** tal como lo construímos es un proxy débil para género
+    La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos femenizados fue del 18.49% y para el resto del 20.50%. Esto nos plantea 3 escenarios: a) Nuestro Modelo en su forma original no está sesgado; no existe un sesgo histórico por el género en relación a nuestro problema; o  **Job** tal como lo construimos es un proxy débil para género
 
 ## 5. Técnicas de Mitigación de Sesgos (Ejercicio 4)
 
