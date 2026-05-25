@@ -120,7 +120,7 @@ Para apoyar numéricamente estos hallazgos, el siguiente gráfico ilustra de for
 
 ![Gráfico de Métricas de Equidad por Grupo (Proxy de Género)](imagenes_informe/ej3_img_1.png)
 
-La brecha de nuestro modelo fue de apenas un 2% (0.0201). La Tasa de Verdaderos Positivos para los trabajos feminizados fue del 18.49% y para el resto del 20.50%. Si bien esto demuestra matemáticamente que nuestro Random Forest en su forma nativa no ejerce una discriminación algorítmica severa, nos obliga a mantener una postura analítica crítica frente a tres posibles escenarios subyacentes: 
+La brecha de nuestro modelo fue de apenas un 1.46% (0.0146). La Tasa de Verdaderos Positivos para los trabajos feminizados fue del 18.49% y para el resto del 20.50%. Si bien esto demuestra matemáticamente que nuestro Random Forest en su forma nativa no ejerce una discriminación algorítmica severa, nos obliga a mantener una postura analítica crítica frente a tres posibles escenarios subyacentes: 
 1. El modelo original y los datos de este banco realmente carecen de un sesgo histórico de género respecto a la adquisición de plazos fijos.
 2. El sesgo de género existe en la sociedad, pero no es un factor que afecte significativamente la propensión de ahorro en este producto financiero en particular.
 3. La variable **`job`** resulta ser un proxy inferencial demasiado débil para capturar la verdadera complejidad de la brecha de género (hipótesis respaldada tras aislar posteriormente solo la categoría `housemaid`, donde la disparidad algorítmica se mantuvo en un ínfimo 0.006).
