@@ -205,12 +205,14 @@ Consideramos que la adopción de proxies inferenciales como paliativo debe ser u
 
 ## 9. Participación y Roles del Grupo Integrador
 
-Todo el trabajo integral aquí plasmado fue producto del intenso debate y de las iteraciones computacionales continuas de nosotros tres como equipo cohesionado. Nuestra división de tareas metodológicas fue la siguiente:
+Todo el trabajo plasmado en este informe fue producto de un equipo cohesionado. **Todos los integrantes auditamos exhaustivamente cada uno de los ejercicios y aportamos criterio conjunto** para las decisiones metodológicas y analíticas del proyecto. 
 
-*   **Tomás Nadal:** Se enfocó en la codificación del *pipeline* principal de *Machine Learning*, realizando el preprocesamiento de datos, el entrenamiento del modelo *Random Forest* base y la implementación técnica de las mitigaciones (Reweighing, Equalized Odds y ajuste de umbrales).
-*   **Alejandro Echeverri:** Responsable del Análisis Exploratorio de Datos (EDA). Desarrolló las visualizaciones de distribución (desbalance de clases, variables demográficas) y detectó de forma temprana los desbalances representacionales presentes en los datos.
-*   **Matías Bacalhau:** Lideró la redacción y revisión final del presente informe. Se encargó de la traducción de los resultados algorítmicos a conceptos de equidad sociotécnica, incluyendo la elección y fundamentación de Equal Opportunity como métrica objetivo.
-*   **Rocío Rivera:** Investigó la bibliografía de equidad en aprendizaje automático (Datasheets for Datasets, Chouldechova, Kleinberg). Aportó el concepto fundamental de utilizar la variable ocupación (`job`) como proxy inferencial de género y evaluó la extensión del análisis interseccional.
+A nivel operativo y de control de versiones, las responsabilidades de implementación se dividieron de la siguiente forma:
+
+*   **Tomás Nadal:** Desarrollo del *pipeline* de Machine Learning, entrenamiento del modelo base y ejecución técnica de las mitigaciones de sesgo (ajustes de umbral y algoritmos).
+*   **Alejandro Echeverri:** Análisis Exploratorio de Datos (EDA), limpieza inicial y generación de las visualizaciones de distribución para detectar sesgos tempranos.
+*   **Matías Bacalhau:** Estructuración y redacción del informe final, humanización de los resultados y fundamentación teórica de los criterios de equidad sociotécnica.
+*   **Rocío Rivera:** Fuerte participación en el desarrollo del Ejercicio 1. Lideró la investigación bibliográfica (*Datasheets for Datasets*) y reconstruyó el contexto sociotécnico, la motivación original y la composición de los datos para el análisis de equidad.
 
 ## 10. Referencias
 
