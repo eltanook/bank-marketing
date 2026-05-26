@@ -1,7 +1,7 @@
 # Informe Final: Equidad en Aprendizaje Automático
 **Trabajo Práctico Integrador**
 **Conjunto de Datos:** Bank Marketing
-**Integrantes:** Tomás Nadal, Alejandro Echeverri, Matías Bacalhau
+**Integrantes:** Tomás Nadal, Alejandro Echeverri, Matías Bacalhau, Rocío Rivera
 
 ---
 
@@ -25,16 +25,18 @@ Para garantizar la transparencia y la auditabilidad exigida en experimentaciones
 Durante nuestra primera exploración de los datos, identificamos y graficamos diversos obstáculos relativos a fairness.
 
 ![Gráfico de distribución del desbalance de la variable objetivo 'y'](imagenes_informe/ej1_image3.png)
+**Figura 1:** Gráfico de distribución del desbalance de la variable objetivo 'y'. Se observa claramente que la enorme mayoría de las llamadas resultaron en un rechazo a suscribir el depósito.
 
-Como podemos observar en el gráfico superior, descubrimos un **fuerte desbalance de clases**. Cerca del 90% de los contactos telefónicos resultaron en rechazo. Este nivel de desequilibrio nos indica que, si no penalizábamos a nuestros algoritmos o ajustábamos nuestros umbrales, estos tenderían a especializarse en predecir exclusivamente el rechazo para minimizar el error global, ignorando a la pequeña minoría que sí desea suscribirse al plazo fijo.
+Como podemos observar en la Figura 1, descubrimos un **fuerte desbalance de clases**. Cerca del 90% de los contactos telefónicos resultaron en rechazo. Este nivel de desequilibrio nos indica que, si no penalizábamos a nuestros algoritmos o ajustábamos nuestros umbrales, estos tenderían a especializarse en predecir exclusivamente el rechazo para minimizar el error global, ignorando a la pequeña minoría que sí desea suscribirse al plazo fijo.
 
 ### 2.1 La Búsqueda de un Proxy de Género
 
 Debido a que el conjunto de datos carece de la variable género, decidimos adoptar el atributo categórico **`job` (ocupación)** como una variable *proxy* de género. 
 
 ![Gráfico de distribución de clientes según su categoría laboral / Proxy de género](imagenes_informe/ej1_image1.png)
+**Figura 2:** Gráfico de distribución de clientes según su categoría laboral, utilizada como proxy de género. Muestra la concentración en oficios históricamente masculinizados y feminizados.
 
-Al analizar las barras del gráfico de distribución ocupacional, nosotros agrupamos las categorías histórica y culturalmente feminizadas (`housemaid` y `admin.`) en el segmento protegido que denominamos `hist_femenino` (representando un total de 1257 instancias), frente al resto de profesiones (tales como gerentes, obreros, técnicos) que agrupamos en `hist_masculino_otro` (con 7786 instancias).
+Al analizar las barras de la Figura 2, nosotros agrupamos las categorías histórica y culturalmente feminizadas (`housemaid` y `admin.`) en el segmento protegido que denominamos `hist_femenino` (representando un total de 1257 instancias), frente al resto de profesiones (tales como gerentes, obreros, técnicos) que agrupamos en `hist_masculino_otro` (con 7786 instancias).
 
 ### 2.2 Exploración de Variables Secundarias
 
@@ -43,12 +45,14 @@ Para tener una visión más global, nosotros también decidimos graficar y evalu
 *   **El Sesgo por Edad (Variable Protegida Oficial):** Notamos un fenómeno llamado la *paradoja de la tasa base*. El grupo poblacional mayor (más de 65 años) está drásticamente subrepresentado en los datos de entrenamiento. Sin embargo, tienen la tasa de suscripción más alta (~27%). El modelo, al carecer de muestras, ignora esta alta probabilidad y arroja falsos negativos recurrentes para este grupo demográfico.
 
 ![Gráfico de distribución de la variable nivel educativo](imagenes_informe/ej1_image5.png)
+**Figura 3:** Gráfico de distribución de la variable nivel educativo. Expone la predominancia de clientes con nivel secundario completo.
 
-Notamos que la educación secundaria domina la muestra. Sin embargo, al cruzar estos datos con las tasas de conversión, vimos que los clientes con educación terciaria (universitarios) tenían mayor propensión porcentual a suscribirse, lo que podría hacer que el modelo priorice a este grupo privilegiado.
+En la Figura 3 notamos que la educación secundaria domina la muestra. Sin embargo, al cruzar estos datos con las tasas de conversión, vimos que los clientes con educación terciaria (universitarios) tenían mayor propensión porcentual a suscribirse, lo que podría hacer que el modelo priorice a este grupo privilegiado.
 
 ![Gráfico de distribución de la variable estado civil](imagenes_informe/ej1_image7.png)
+**Figura 4:** Gráfico de distribución de la variable estado civil. Indica una clara mayoría de clientes casados dentro de la base de datos.
 
-De igual forma, encontramos que las personas casadas son mayoría (~60%) frente a solteros (~28%) y divorciados (~12%). Este análisis exploratorio nos demostró que las fuentes de sesgo basadas en desbalances de representación en la base de datos son variadas.
+De igual forma, en la Figura 4 encontramos que las personas casadas son mayoría (~60%) frente a solteros (~28%) y divorciados (~12%). Este análisis exploratorio nos demostró que las fuentes de sesgo basadas en desbalances de representación en la base de datos son variadas.
 
 ## 3. Modelo Predictivo y el Costo del Error (Ejercicio 2)
 
@@ -70,10 +74,13 @@ Para la tarea central de clasificación, nosotros seleccionamos un modelo de **R
 weighted avg       0.87      0.89      0.87      9043
 ```
 
-Adicionalmente, generamos visualizaciones sobre el comportamiento del modelo base que dan cuenta de las limitaciones a la hora de predicir la clase minoritaria:
+Adicionalmente, las Figuras 5 y 6 ilustran el comportamiento del modelo base y dan cuenta de las limitaciones a la hora de predecir la clase minoritaria:
 
 ![Gráficos del Modelo Random Forest (Baseline) - Parte 1](imagenes_informe/ej2_img_1.png)
+**Figura 5:** Matriz de confusión y métricas del modelo Random Forest baseline. Muestra el alto desequilibrio de exactitud.
+
 ![Gráficos del Modelo Random Forest (Baseline) - Parte 2](imagenes_informe/ej2_img_2.png)
+**Figura 6:** Curvas del modelo baseline, demostrando su bajo rendimiento en la clase positiva (clientes suscritos).
 
 La métrica de exactitud global (*Accuracy*) alcanzó un **89%**. Sin embargo, nosotros sabíamos que esto era producto del desbalance. Por la misma razón, nuestro *Recall* (Sensibilidad) para la clase `yes` fue de apenas un **20%**. 
 Es decir, nuestro modelo identificaba casi perfectamente a los que iban a rechazar (98%), pero pasaba por alto y perdía al 80% de los clientes que efectivamente se subscribieron (Falsos Negativos). 
@@ -114,9 +121,10 @@ TPR (Equalized Odds): 0.0146 → ✅ FAIR
 FPR (Equalized Odds): 0.0001 → ✅ FAIR
 ```
 
-Para apoyar numéricamente estos hallazgos, el siguiente gráfico ilustra de forma visual las métricas de equidad evaluadas para los subgrupos de la variable protegida:
+Para apoyar numéricamente estos hallazgos, la Figura 7 ilustra de forma visual las métricas de equidad evaluadas para los subgrupos de la variable protegida:
 
 ![Gráfico de Métricas de Equidad por Grupo (Proxy de Género)](imagenes_informe/ej3_img_1.png)
+**Figura 7:** Métricas de equidad por grupo ocupacional (proxy de género), mostrando una leve disparidad estadística aceptable.
 
 La brecha de nuestro modelo fue de apenas un 1.46% (0.0146). La Tasa de Verdaderos Positivos para los trabajos feminizados fue del 18.49% y para el resto del 20.50%. Si bien esto demuestra matemáticamente que nuestro Random Forest en su forma nativa no ejerce una discriminación algorítmica severa, nos obliga a mantener una postura analítica crítica frente a tres posibles escenarios subyacentes: 
 1. El modelo original y los datos de este banco realmente carecen de un sesgo histórico de género respecto a la adquisición de plazos fijos.
@@ -130,16 +138,18 @@ A pesar de que descubrimos que nuestro modelo era éticamente equitativo, nosotr
 ### 5.1 Reweighing (Pre-procesamiento)
 Nosotros aplicamos *Reweighing* para inyectar ponderaciones en los datos de entrenamiento. Esta técnica calcula los pesos de manera inversamente proporcional a la frecuencia de las clases, buscando balancear la representación. Curiosamente, encontramos que este enfoque falló para nuestros propósitos de negocio. Si bien nos subió imperceptiblemente la Exactitud global a 0.8937, notamos que el modelo sacrificó la Tasa de Verdaderos Positivos (TPR) del grupo `hist_femenino` (cayendo de 0.1849 a 0.1575). Decidimos que esto no era aceptable dado que profundizaba nuestro problema.
 
-Para ilustrar los resultados tras la aplicación de esta técnica, adjuntamos la visualización generada por la librería *Holistic AI*:
+Para ilustrar los resultados tras la aplicación de esta técnica, adjuntamos la Figura 8 generada por la librería *Holistic AI*:
 
 ![Métricas de Equidad - Reweighing](imagenes_informe/ej4_img_1.png)
+**Figura 8:** Resultados de métricas de equidad tras aplicar la técnica de Reweighing. Se nota una desmejora contraproducente en el grupo femenino.
 
 ### 5.2 Equalized Odds (Post-procesamiento)
 También utilizamos el mitigador *post-hoc* de *Holistic AI*, el cual aplica algoritmos de programación lineal para forzar y ajustar las probabilidades predictivas finales (igualando el TPR y el FPR forzosamente). Al aplicarlo sobre nuestro modelo que ya tenía apenas un 2% de disparidad, constatamos que el optimizador matemático directamente no produjo mejoras. Lo cual tiene sentido: el modelo tenía un margen de mejora despreciable. Esto nos dice que aplicar librerías matemáticamente complejas a ciegas sobre un modelo no implica que mejorará, es decir aumentar equitativamente el Recall.
 
-A continuación exponemos el reporte visual de *Holistic AI* con las métricas post-procesamiento:
+A continuación, la Figura 9 expone el reporte visual de *Holistic AI* con las métricas post-procesamiento:
 
 ![Métricas de Equidad - Equalized Odds](imagenes_informe/ej4_img_2.png)
+**Figura 9:** Resultados tras aplicar el optimizador post-hoc de Equalized Odds. Los cambios son prácticamente nulos debido a la buena equidad original.
 
 ### 5.3 Nuestro Hallazgo Central: El Ajuste Manual de Umbral (Logit Tuning)
 Dado que la utilización de técnicas de pre y post procesamiento no aumentaba el Recall, tomamos la decisión de intervenir manualmente la capa probabilística (*Logit*) del algoritmo original. Por defecto, un modelo de clasificación asigna `yes` si la probabilidad de suscripción supera el 0.50 (50%). Nosotros, priorizando el negocio, programamos un ciclo para iterar umbrales mucho más bajos y obtuvimos los siguientes resultados:
@@ -152,10 +162,13 @@ Umbral 0.35 → TP: 404, FN: 654, FP: 428,  TN: 7557, Recall: 0.398
 Umbral 0.40 → TP: 352, FN: 706, FP: 317,  TN: 7668, Recall: 0.345
 ```
 
-Para evaluar el impacto integral de estas mitigaciones, graficamos a continuación una comparación de performance entre los tres enfoques probados (Modelo Original, Reweighing y Equalized Odds) y añadimos el resultado gráfico del umbral de decisión:
+Para evaluar el impacto integral de estas mitigaciones, graficamos en las Figuras 10 y 11 una comparación de performance entre los tres enfoques probados (Modelo Original, Reweighing y Equalized Odds) y añadimos el resultado gráfico del umbral de decisión:
 
 ![Comparación de Performance de los Modelos Mitigados](imagenes_informe/ej4_img_3.png)
+**Figura 10:** Comparación de métricas globales (F1, Accuracy, Recall, Precision) entre el modelo original y las mitigaciones teóricas.
+
 ![Resultados Operativos con Ajuste de Umbral](imagenes_informe/ej4_img_7.png)
+**Figura 11:** Evolución de TP, FP, TN y FN en función del umbral de corte, lo que justifica de forma empírica la elección operativa final de 0.30.
 
 Al final del análisis, nosotros decidimos establecer operativamente un **umbral manual de 0.30**. Con este ajuste, descubrimos que los Verdaderos Positivos (clientes detectados con éxito) se duplicaron, pasando de 214 a 480; reduciendo los Falsos Negativos (que cayeron de más de 800 a 578), sin que implique perdida de equidad.
 
@@ -166,9 +179,10 @@ Uno de los pilares de la ingeniería de *Machine Learning* es la escalabilidad. 
 
 Al correr nuestro modelo (`ej5.ipynb`) para evaluar los distintos niveles de educación frente al resultado, pudimos constatar que el sistema es flexible en relación al seteo de la variable protegida elegida. El *pipeline* funcionó extrayendo las disparidades (Equal Opportunity, Statistical Parity) para los subgrupos de primaria, secundaria y terciaria. Comprobamos, así, que el banco puede auditar futuras características usando exactamente nuestra misma base de código.
 
-El siguiente gráfico de barras refleja los resultados tomando educación como variable protegida:
+La Figura 12 refleja los resultados tomando educación como variable protegida:
 
 ![Comparación de Performance Global - Nivel Educativo](imagenes_informe/ej5_img_1.png)
+**Figura 12:** Métricas de equidad tomando el nivel educativo como nueva variable protegida, lo cual comprueba la flexibilidad analítica del pipeline construido.
 
 **Análisis Interseccional**
 En auditorías contemporáneas, evaluar la equidad por ocupación y luego por educación de manera aislada suele ser insuficiente. Sabemos que la vulnerabilidad se multiplica cuando los ejes de identidad se cruzan de manera concurrente (por ejemplo, analizar específicamente cómo trata el modelo a un clúster de mujeres que laboran en oficios feminizados y que, simultáneamente, solo poseen educación primaria o son adultas mayores). Nuestros hallazgos iniciales demuestran que la infraestructura que construimos soporta plenamente este nivel de detalle técnico, dejando una base para ejecutar cruces interseccionales en el futuro. Dicho esto, podemos recomendar que en futuras iteraciones se incluya un analisis basado en la *interseccionalidad*. 
@@ -193,9 +207,10 @@ Consideramos que la adopción de proxies inferenciales como paliativo debe ser u
 
 Todo el trabajo integral aquí plasmado fue producto del intenso debate y de las iteraciones computacionales continuas de nosotros tres como equipo cohesionado. Nuestra división de tareas metodológicas fue la siguiente:
 
-*   **Tomás** Nadal
-*   **Alejandro** Echeverri
-*   **Matías** Bacalhau
+*   **Tomás Nadal:** Se enfocó en la codificación del *pipeline* principal de *Machine Learning*, realizando el preprocesamiento de datos, el entrenamiento del modelo *Random Forest* base y la implementación técnica de las mitigaciones (Reweighing, Equalized Odds y ajuste de umbrales).
+*   **Alejandro Echeverri:** Responsable del Análisis Exploratorio de Datos (EDA). Desarrolló las visualizaciones de distribución (desbalance de clases, variables demográficas) y detectó de forma temprana los desbalances representacionales presentes en los datos.
+*   **Matías Bacalhau:** Lideró la redacción y revisión final del presente informe. Se encargó de la traducción de los resultados algorítmicos a conceptos de equidad sociotécnica, incluyendo la elección y fundamentación de Equal Opportunity como métrica objetivo.
+*   **Rocío Rivera:** Investigó la bibliografía de equidad en aprendizaje automático (Datasheets for Datasets, Chouldechova, Kleinberg). Aportó el concepto fundamental de utilizar la variable ocupación (`job`) como proxy inferencial de género y evaluó la extensión del análisis interseccional.
 
 ## 10. Referencias
 
