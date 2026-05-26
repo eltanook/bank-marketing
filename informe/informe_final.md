@@ -198,8 +198,8 @@ Consideramos que la adopción de proxies inferenciales como paliativo debe ser u
 Todo el trabajo integral aquí plasmado fue producto del intenso debate y de las iteraciones computacionales continuas de nosotros como equipo cohesionado. La división metodológica de tareas se distribuyó de la siguiente manera:
 
 *   **Tomás Nadal**: Lideró la implementación base del código y la ejecución de los experimentos principales (ejercicios 1, 2 y 5). Adicionalmente, estuvo a cargo de la redacción general del informe, la elaboración de la presentación y la estructuración del repositorio.
-*   **Alejandro Echeverri**: Se enfocó en el desarrollo y análisis del ejercicio 4, investigando las técnicas de mitigación de sesgos, particularmente la aplicación e interpretación de *Reweighing*.
-*   **Matías Bacalhau**: Contribuyó significativamente en el análisis del ejercicio 3 y en el diseño analítico del ajuste manual de umbrales predictivos. Asimismo, aportó a la revisión del informe y a la evaluación de las variables demográficas alternativas.
+*   **Alejandro Echeverri**: Lideró el desarrollo y análisis del ejercicio 4, investigando las técnicas de mitigación de sesgos, particularmente la aplicación e interpretación de *Reweighing*. Adicionalmente, aportó revisión metodológica y criterio analítico de manera transversal a todos los demás ejercicios del proyecto.
+*   **Matías Bacalhau**: Lideró el análisis del ejercicio 3 y el diseño analítico del ajuste manual de umbrales predictivos. Asimismo, brindó revisión crítica constante a lo largo de todos los ejercicios, participando activamente en la consolidación del informe y en la evaluación de las variables demográficas alternativas.
 *   **Rocio Rivera**: Colaboró de manera activa en la fase de investigación inicial y en la estructuración teórica del ejercicio 1, sentando las bases del análisis exploratorio.
 
 ## 10. Referencias
