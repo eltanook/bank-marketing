@@ -196,7 +196,7 @@ Sin embargo, tras entrenar modelos, generar matrices y debatir entre nosotros, t
 
 ## 8. Conclusión Final y Trabajo Futuro
 
-A lo largo de este Trabajo Práctico Integrador, demostramos que producir un modelo fair no es sencillamente proceso que pueda automatizarse o delegarse a ciegas a través de librerías de caja negra. Si bien programamos y aplicamos transformaciones  como *Reweighing* y *Equalized Odds*, concluimos interviniento el umbral de aceptación del modelo superaron ampliamente a las mitigaciones teóricas genéricas. Sin embargo, no olvidamos los escenarios planteados más arriba. 
+A lo largo de este Trabajo Práctico Integrador, demostramos que producir un modelo fair no es sencillamente un proceso que pueda automatizarse o delegarse a ciegas a través de librerías de caja negra. Si bien programamos y aplicamos transformaciones como *Reweighing* y *Equalized Odds*, concluimos que intervenir el umbral de aceptación del modelo superó ampliamente a las mitigaciones teóricas genéricas. Sin embargo, no olvidamos los escenarios planteados más arriba. 
 
 Como discutimos en el reporte, este escenario nos abrió las puertas a considerar interpretaciones más cautelosas, tales como la posibilidad de que el sesgo histórico de género no sea un factor fuertemente determinante en la adquisición específica de plazos fijos europeos, o de manera más conservadora, que nuestro indicador proxy requería revaluaciones sociológicas para ganar mayor solidez inferencial.
 

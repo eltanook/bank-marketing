@@ -7,10 +7,11 @@ header: "![w:150](../assets/Logo_UNSAM.png)"
 style: |
   section {
     background-color: #F0F8FF;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 34, 68, 0.024) 10px, rgba(0, 34, 68, 0.024) 20px);
     color: #002244;
     font-family: 'Inter', 'Segoe UI', sans-serif;
     padding: 60px 80px 80px 80px;
-    font-size: 27px; /* Reducción ligera para dar más respiro */
+    font-size: 25.5px; /* Aumento leve para mejor legibilidad */
   }
   header {
     position: absolute;
@@ -41,7 +42,7 @@ style: |
   
   h1, h2, h3 {
     color: #0047AB;
-    margin-bottom: 0.4em;
+    margin-bottom: 0.2em;
   }
   h1 { font-size: 2em; font-weight: bold; }
   h2 { font-size: 1.4em; border-bottom: 2px solid #0047AB; padding-bottom: 5px; margin-top: 0; }
@@ -65,7 +66,7 @@ style: |
   
   img {
     max-width: 100%;
-    max-height: 380px;
+    max-height: 300px;
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,34,68,0.1);
@@ -88,21 +89,26 @@ style: |
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
   }
   section.portada h1 { color: white; border: none; font-size: 3em; margin-bottom: 0.2em; }
   section.portada h2 { color: #87CEFA; border: none; font-size: 1.5em; font-weight: normal; }
   section.portada .details { margin-top: 2em; font-size: 1.2em; color: #E0FFFF; }
+  section.portada strong { color: white; }
 
   /* Preguntas Styling */
   section.preguntas {
     background-color: #0047AB;
+    background-image: none;
     color: white;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
   }
-  section.preguntas h1 { color: white; border: none; font-size: 4em; }
+  section.preguntas h1 { color: white; border: none; font-size: 3.5em; margin-bottom: 0.1em; }
+  section.preguntas h2 { color: #87CEFA; border: none; font-size: 1.8em; font-weight: normal; margin-top: 0; }
 
 ---
 
@@ -115,7 +121,7 @@ style: |
 
 <div class="details">
   <p>Trabajo Práctico Integrador</p>
-  <p><strong>Integrantes:</strong> Tomás Nadal, Alejandro Echeverri, Matías Bacalhau</p>
+  <p><strong>Integrantes:</strong> Tomás Nadal, Alejandro Echeverri, Matías Bacalhau, Rocío Rivera</p>
   <p>1er Cuatrimestre 2026 | Universidad Nacional de San Martín (UNSAM)</p>
 </div>
 
@@ -131,6 +137,7 @@ Predecir si un cliente **suscribirá a un plazo fijo** para optimizar campañas 
 **Naturaleza de los Datos**
 - **45,211 instancias** (llamadas telefónicas).
 - Variables sociodemográficas y macroeconómicas (Euribor, tasas de empleo).
+- **Preprocesamiento Clave:** Exclusión de la variable `duration` para evitar el riesgo de *Data Leakage*.
 
 **Variable Protegida (Foco de Equidad)**
 - **`job` (Ocupación) como proxy de género** (ej. roles históricamente feminizados como "housemaid" vs masculinizados como "blue-collar").
@@ -309,7 +316,7 @@ Antes de recurrir a un post-procesamiento complejo, evaluamos una intervención 
 <div class="card" style="margin-bottom: 20px;">
 
 - **Técnica:** Analizamos las métricas internas del Random Forest y bajamos el umbral de decisión para clasificar como "Sí" de `0.50` a **`0.30`**.
-- **Resultado:** Aumentamos drásticamente la cantidad de Verdaderos Positivos (mayor Recall o TPR).
+- **Resultado:** Se **duplicaron** los Verdaderos Positivos (pasando de 214 a 480 clientes captados).
 - **Conclusión:** A veces un ajuste empírico simple y guiado por el negocio es más transparente y efectivo que forzar restricciones matemáticas a ciegas en todo el pipeline.
 
 </div>
@@ -345,7 +352,7 @@ Al aplicar las técnicas utilizando la librería **Holistic AI**, observamos los
 
 | Modelo | TPR Difference | Disparate Impact | Evaluación de Equidad |
 |:---|:---:|:---:|:---:|
-| **Random Forest Base** | **0.0039** | **1.020** | ✅ **Muy Justo** |
+| **Random Forest Base** | **0.0146** | **1.049** | ✅ **Muy Justo** |
 | **RF + Reweighing** | 0.0179 | 0.972 | ✅ Justo (leve ruido) |
 | **RF + Equalized Odds** | 0.0673 | 1.254 | ❌ **Empeora la equidad** |
 
@@ -396,6 +403,9 @@ Nuestro análisis nos dejó una enseñanza contra-intuitiva pero fundamental en 
 Un modelo sesgado que deniega sistemáticamente oportunidades genera **ciclos de retroalimentación negativos**:
 Grupos marginados no son contactados $\rightarrow$ no generan historial $\rightarrow$ el modelo futuro aprende que "no son propensos al éxito".
 
+**Recomendación Operativa para el Banco:**
+Modificar procesos de recolección para obtener el género explícito voluntariamente, abandonando la inexactitud de los proxies.
+
 <div class="highlight-box">
 <strong>Conclusión Final de la Materia:</strong><br>
 Los algoritmos y los datos no son neutros. Mitigar sesgos no es solo un ajuste técnico; es un imperativo ético para no amplificar ni automatizar inequidades estructurales a gran escala.
@@ -407,4 +417,5 @@ Los algoritmos y los datos no son neutros. Mitigar sesgos no es solo un ajuste t
 <!-- _header: "" -->
 <!-- _paginate: false -->
 
-<h1>¿Preguntas?</h1>
+<h1>¡Muchas gracias!</h1>
+<h2>¿Tienen alguna pregunta?</h2>
