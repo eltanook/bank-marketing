@@ -34,7 +34,7 @@ Pero más allá de las etiquetas, detectamos problemas de representación poblac
 El reporte de clasificación nos arrojó una Exactitud o *Accuracy* global del 89%. A simple vista, un número excelente... hasta que miramos la matriz de confusión. Nuestro *Recall* o Sensibilidad para la clase que nos importaba (los que decían 'Sí') era de apenas un 20%. Es decir, el modelo era un genio prediciendo a los que iban a rechazar la oferta, pero se le escapaba el 80% de los verdaderos inversores.
 Aquí tuvimos que frenar y hacernos una pregunta de negocio fundamental: ¿Cuál es el peor error posible para este banco? Llegamos a la firme conclusión de que el *Falso Negativo* era nuestro enemigo a abatir. Si el modelo predice que un cliente no quiere invertir (y nos equivocamos), no lo llamamos, perdiendo comercialmente a un inversor real y su capital frente a otro banco. En cambio, equivocarnos con un *Falso Positivo* solo nos cuesta los dos minutos de salario del operador telefónico que hace una llamada infructuosa."
 
-**[Diapositiva 5: Evaluación Inicial (Proxy)]**
+**[Diapositiva 6: Evaluación Inicial (Proxy)]**
 "Para cerrar el diagnóstico, evaluamos cómo este modelo base trataba a nuestro proxy de género. Observamos las tasas de Verdaderos Positivos segmentadas por ocupación: el grupo feminizado tenía un 18.49% y el resto un 19.96%. A primera vista, el modelo parecía razonablemente equitativo. Pero el problema de fondo era estructural: **ambos grupos tenían un Recall paupérrimo**, inferior al 20%. El algoritmo era ineficaz para captar a los inversores reales en todos los grupos por igual. Y con ese problema sobre la mesa, pasamos a la auditoría formal de equidad."
 
 ---
@@ -54,11 +54,11 @@ Por ende, adoptamos como nuestra estrella polar el criterio de **Equal Opportuni
 "A pesar de esto, queríamos ver si podíamos mejorar ese paupérrimo 20% de Recall global sin romper la equidad. Comenzamos probando mitigadores académicos desde el pre-procesamiento, específicamente la técnica de *Reweighing*. Esta técnica le asigna pesos a las instancias de forma inversamente proporcional a su frecuencia, buscando que el modelo no penalice a las minorías.
 ¿Qué pasó? Como nuestro modelo base ya era equitativo, forzar un cambio en la distribución de los pesos fue contraproducente. La técnica terminó degradando la Tasa de Verdaderos Positivos del grupo femenino, haciéndola caer del 18% al 15%. La descartamos."
 
-**[Diapositiva 9: Enfoque Alternativo - Ajuste Manual]**
+**[Diapositiva 10: Enfoque Alternativo - Ajuste Manual]**
 "Viendo que los mitigadores de caja negra fallaban o eran contraproducentes, tomamos una decisión puramente empírica y enfocada en el negocio. Entramos a la capa probabilística del algoritmo y realizamos un *Logit Tuning*. Por defecto, el modelo clasifica como 'Sí' si la probabilidad supera el 0.50. Nosotros lo fuimos bajando iterativamente hasta fijar un umbral de 0.30.
 El impacto fue masivo: con este simple ajuste manual logramos duplicar la cantidad de Verdaderos Positivos, pasando de 214 a **484** clientes captados, reduciendo los Falsos Negativos de más de 800 a 574, sin que la equidad entre los grupos sufriera variaciones significativas. Nuestra conclusión fue contundente: a veces un ajuste empírico simple y guiado por el negocio es más efectivo que forzar restricciones matemáticas complejas a ciegas sobre el pipeline."
 
-**[Diapositiva 10: Mitigación Equalized Odds y Diapositiva 11: Resumen Comparativo]**
+**[Diapositiva 11: Mitigación Equalized Odds y Resumen Comparativo]**
 "Para agotar las instancias teóricas, también aplicamos *Equalized Odds* utilizando la librería Holistic AI, una técnica agresiva de post-procesamiento que fuerza matemáticamente la igualdad de tasas alterando las predicciones finales. Como pueden ver en la tabla resumen comparativa de la siguiente diapositiva, forzar a un modelo que ya era equilibrado a cumplir restricciones tan estrictas solo terminó empeorando la disparidad, llevándola de un 1.46% a casi un 6.73%, e introduciendo ruido algorítmico. El Modelo Base tuvo un TPR Difference de 0.0146 (✅ Muy Justo), el Random Forest con Reweighing tuvo 0.0179 (✅ Justo, con leve ruido) y el RF con Equalized Odds llegó a 0.0673 (❌ Empeoró la equidad).
 Nuestra gran conclusión de esta etapa fue contundente: nuestro mejor modelo era el baseline original, empoderado operativamente con nuestro umbral manual de 0.30."
 
