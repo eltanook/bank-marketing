@@ -6,8 +6,7 @@ math: mathjax
 header: "![w:150](../assets/Logo_UNSAM.png)"
 style: |
   section {
-    background-color: #F0F8FF;
-    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 34, 68, 0.024) 10px, rgba(0, 34, 68, 0.024) 20px);
+    background-color: #E1F5FE;
     color: #002244;
     font-family: 'Inter', 'Segoe UI', sans-serif;
     padding: 60px 80px 80px 80px;
@@ -163,8 +162,8 @@ Predecir si un cliente **suscribirá a un plazo fijo** para optimizar campañas 
 <div class="card" style="height: 100%;">
 
 **Implicancias Éticas**
-- La recolección directa de sistemas bancarios hereda los sesgos históricos de aprobación y acceso a capital del banco.
-- Los "descartados" por el modelo no volverán a ser llamados, perpetuando su exclusión financiera.
+- La recolección directa hereda los sesgos de perfilamiento del banco. Al decidir a quién ofrecer instrumentos de ahorro (cuyos rendimientos se pagan con capital del banco), se discrimina a grupos vulnerables.
+- Los "descartados" por el modelo no volverán a ser llamados, perpetuando su exclusión de herramientas de ahorro e inclusión financiera.
 
 </div>
 </div>
@@ -225,8 +224,8 @@ Evaluación del modelo base segmentando por ocupación (proxy de género).
 <div class="column">
 <div class="card">
 
-- Las tasas de verdaderos positivos (captar al cliente real) varían drásticamente.
-- Trabajos "feminizados" reciben predicciones negativas desproporcionadas, no por incapacidad de ahorro, sino por correlaciones espurias del dataset histórico.
+  - **Hallazgo clave:** La TPR del grupo feminizado fue **18.49%** vs **19.96%** del resto — una diferencia de solo **1.46%**.
+  - El problema real no era discriminación: **ambos grupos tenían un Recall inferior al 20%**. El algoritmo era ineficaz para captar inversores reales en *todos* los grupos por igual.
 
 </div>
 </div>
@@ -277,8 +276,10 @@ Evaluación matemática de la disparidad antes de intervenir.
 <div class="card" style="margin-bottom: 20px;">
 
 Utilizando el módulo de la diferencia como medida de disparidad:
-- **Hallazgo inesperado:** El modelo original (Baseline) resulta ser muy equitativo, cumpliendo con holgura todas las métricas usando un umbral estándar de 0.1.
-- Solo al someter al modelo a **pruebas de estrés con umbrales estrictos** (0.05, 0.03, 0.01) detectamos sensibilidad y leves disparidades en la Igualdad de Oportunidades.
+- **Hallazgo inesperado:** El modelo original (Baseline) resulta ser muy equitativo, cumpliendo con holgura **todas** las métricas con un umbral de tolerancia del 10%:
+  - Statistical Parity: **0.0018** ✅
+  - Equal Opportunity (TPR): **0.0146** ✅
+  - Predictive Parity: **0.0217** ✅
 
 </div>
 
@@ -316,8 +317,8 @@ Antes de recurrir a un post-procesamiento complejo, evaluamos una intervención 
 <div class="card" style="margin-bottom: 20px;">
 
 - **Técnica:** Analizamos las métricas internas del Random Forest y bajamos el umbral de decisión para clasificar como "Sí" de `0.50` a **`0.30`**.
-- **Resultado:** Se **duplicaron** los Verdaderos Positivos (pasando de 214 a 480 clientes captados).
-- **Conclusión:** A veces un ajuste empírico simple y guiado por el negocio es más transparente y efectivo que forzar restricciones matemáticas a ciegas en todo el pipeline.
+  - **Resultado:** Se **duplicaron** los Verdaderos Positivos (**214 → 484** clientes captados), reduciendo los Falsos Negativos de más de 800 a 574, **sin afectar la equidad**.
+  - **Conclusión:** A veces un ajuste empírico simple y guiado por el negocio es más transparente y efectivo que forzar restricciones matemáticas a ciegas en todo el pipeline.
 
 </div>
 
